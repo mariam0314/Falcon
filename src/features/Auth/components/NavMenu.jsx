@@ -73,17 +73,17 @@ export default function NavMenu({
     },
     {
       title: "Buy Refurbished Devices",
-      route: "/products?deviceType=refurbished",
+      route: "/refurbished",
       subItems: [
-        { label: "All Refurbished", route: "/products?deviceType=refurbished" },
-        { label: "Mobiles", route: "/products?deviceType=refurbished&category=mobile" },
-        { label: "Laptops", route: "/products?deviceType=refurbished&category=laptop" },
-        { label: "Tablets", route: "/products?deviceType=refurbished&category=tablet" },
+        { label: "All Refurbished", route: "/refurbished" },
+        { label: "Mobiles", route: "/refurbished?category=mobile" },
+        { label: "Laptops", route: "/refurbished?category=laptop" },
+        { label: "Tablets", route: "/refurbished?category=tablet" },
         {
           label: "SmartWatches",
-          route: "/products?deviceType=refurbished&category=smartwatch",
+          route: "/refurbished?category=smartwatch",
         },
-        { label: "Television", route: "/products?deviceType=refurbished&category=television" },
+        { label: "Television", route: "/refurbished?category=television" },
       ],
     },
     {

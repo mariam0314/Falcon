@@ -365,7 +365,6 @@ export function RefurbishedPage() {
         filterConfig,
       }}
       showCategoryTabs={true}
-      defaultDeviceType="refurbished"
     />
   );
 }
@@ -405,7 +404,6 @@ export function ProductsPage() {
         filterConfig,
       }}
       showCategoryTabs={true}
-      defaultDeviceType={deviceType}
     />
   );
 }

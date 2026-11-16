@@ -74,13 +74,13 @@ export default function Home() {
         <Productcarousel
           title="Buy Refurbished Mobiles"
           category="mobile"
-          viewAllPath="/products?deviceType=refurbished&category=mobile"
+          viewAllPath="/refurbished?category=mobile"
           buttonText="Explore Refurbished Mobiles"
         />
         <Productcarousel
           title="Refurbished Laptops"
           category="laptop"
-          viewAllPath="/products?deviceType=refurbished&category=laptop"
+          viewAllPath="/refurbished?category=laptop"
           buttonText="Explore Refurbished Laptops"
         />
 

@@ -1227,6 +1227,7 @@ function MobileSortDrawer({ open, onClose, sortBy, onSort }) {
   if (!open) return null;
   const options = [
     { value: "newest", label: "Newest First" },
+    { value: "oldest", label: "Oldest First" },
     { value: "price_asc", label: "Price: Low → High" },
     { value: "price_desc", label: "Price: High → Low" },
     { value: "rating", label: "Top Rated" },
@@ -1345,17 +1346,16 @@ export default function Filter({
       )
         continue;
 
-      // deviceType: URL lowercase ("refurbished") → UI Title Case ("Refurbished")
+      // On general / refurbished browsing, "deviceType=refurbished" in URL is a route indicator, not a restrictive filter
+      if (key === "deviceType" && val.toLowerCase() === "refurbished") {
+        continue;
+      }
+
       if (key === "deviceType" || key === "brand") {
         pre[key] = [val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()];
       } else {
         pre[key] = [val];
       }
-    }
-    // If deviceType is not explicit in URL query params, but defaultDeviceType is specified (e.g. /refurbished route)
-    if (!pre.deviceType && (searchParams.get("deviceType") || defaultDeviceType)) {
-      const dt = searchParams.get("deviceType") || defaultDeviceType;
-      pre.deviceType = [dt.charAt(0).toUpperCase() + dt.slice(1).toLowerCase()];
     }
     return pre;
   };
@@ -1385,10 +1385,6 @@ export default function Filter({
   const handleCategorySelect = (catId) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      const effectiveDT = searchParams.get("deviceType") || defaultDeviceType;
-      if (effectiveDT && !next.has("deviceType")) {
-        next.set("deviceType", effectiveDT.toLowerCase());
-      }
       if (!catId || catId === "all") {
         next.delete("category");
       } else {
@@ -1400,7 +1396,7 @@ export default function Filter({
     setPage(1);
   };
 
-  const activeDT = activeFilters.deviceType?.[0]?.toLowerCase() || effectiveDeviceType;
+  const activeDT = activeFilters.deviceType?.[0]?.toLowerCase() || "";
 
   const apiFilters = useMemo(() => {
     const params = {
@@ -1495,15 +1491,39 @@ export default function Filter({
 
   const filtered = useMemo(() => {
     let list = sourceDevices.filter((d) => {
-      const name = d.title || d.name || "";
-      if (
-        searchQuery &&
-        !name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-        return false;
+      // 1. Search Query across all fields
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase().trim();
+        const searchableText = [
+          d.title,
+          d.name,
+          d.brand,
+          d.model,
+          d.category,
+          d.subcategory,
+          d.description,
+          d.storage,
+          d.color,
+          d.specs?.processor,
+          d.specs?.performance?.chipsetFull,
+          d.specs?.performance?.ram,
+          d.specs?.graphics,
+          d.specs?.os,
+          d.specs?.laptopType,
+          d.specs?.display?.type,
+          d.specs?.rearCamera?.primary,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        if (!searchableText.includes(q)) return false;
+      }
+
+      // 2. Price Range
       if (d.price < priceMin || d.price > priceMax) return false;
 
-      // Filter by deviceType if activeDT is specified (e.g. refurbished)
+      // 3. Device Type (if activeDT is selected)
       if (activeDT) {
         if (
           !d.deviceType ||
@@ -1513,7 +1533,7 @@ export default function Filter({
         }
       }
 
-      // Filter by category if effectiveCategory is specified and not "all"
+      // 4. Category
       if (effectiveCategory && effectiveCategory !== "all") {
         if (
           !d.category ||
@@ -1523,6 +1543,7 @@ export default function Filter({
         }
       }
 
+      // 5. Active Filters
       for (const [key, vals] of Object.entries(activeFilters)) {
         if (!vals.length) continue;
         if (key === "availability") {
@@ -1548,8 +1569,26 @@ export default function Filter({
             return false;
           continue;
         }
+        if (key === "condition") {
+          if (
+            !vals.some((v) => v.toLowerCase() === d.condition?.toLowerCase())
+          )
+            return false;
+          continue;
+        }
         if (key === "brand") {
           if (!vals.some((v) => v.toLowerCase() === d.brand?.toLowerCase()))
+            return false;
+          continue;
+        }
+        if (key === "storage") {
+          if (
+            !vals.some((v) => {
+              const vNorm = v.replace(/\s+/g, "").toLowerCase();
+              const dNorm = (d.storage || "").replace(/\s+/g, "").toLowerCase();
+              return dNorm.includes(vNorm) || vNorm.includes(dNorm);
+            })
+          )
             return false;
           continue;
         }
@@ -1571,6 +1610,15 @@ export default function Filter({
       }
       return true;
     });
+
+    if (sortBy === "oldest")
+      list = [...list].sort(
+        (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0),
+      );
+    if (sortBy === "newest")
+      list = [...list].sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+      );
     if (sortBy === "price_asc")
       list = [...list].sort((a, b) => a.price - b.price);
     if (sortBy === "price_desc")
@@ -1591,7 +1639,7 @@ export default function Filter({
     priceMax,
     activeFilters,
     sortBy,
-    effectiveDeviceType,
+    activeDT,
     effectiveCategory,
   ]);
 
@@ -1605,16 +1653,20 @@ export default function Filter({
     });
 
   const resetAll = () => {
-    const defaultFilters = {};
-    const effectiveDT = searchParams.get("deviceType") || defaultDeviceType;
-    if (effectiveDT) {
-      defaultFilters.deviceType = [effectiveDT.charAt(0).toUpperCase() + effectiveDT.slice(1).toLowerCase()];
-    }
-    setActiveFilters(defaultFilters);
+    setActiveFilters({});
     setPriceMin(priceRange.min);
     setPriceMax(priceRange.max);
     setSearchQuery("");
+    setSortBy("newest");
     setPage(1);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams();
+      const cat = prev.get("category");
+      if (cat && cat !== "all") {
+        next.set("category", cat);
+      }
+      return next;
+    });
   };
 
   const handlePageChange = (p) => {
@@ -1716,13 +1768,18 @@ export default function Filter({
           className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 bg-white focus:outline-none cursor-pointer"
         >
           <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
           <option value="price_asc">Price: Low → High</option>
           <option value="price_desc">Price: High → Low</option>
           <option value="rating">Top Rated</option>
           <option value="discount">Best Discount</option>
         </select>
         <button
-          className="text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors"
+          onClick={() => {
+            setPage(1);
+            refetch();
+          }}
+          className="text-white text-sm font-bold px-4 py-2.5 rounded-xl transition-colors cursor-pointer"
           style={{ backgroundColor: "#0077b6" }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.backgroundColor = "#005f8f")
