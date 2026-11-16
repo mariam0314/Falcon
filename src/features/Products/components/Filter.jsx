@@ -1320,6 +1320,7 @@ export default function Filter({
     priceRange = { min: 0, max: 200000, step: 1000 },
   } = data || {};
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const urlCategory = searchParams.get("category")?.toLowerCase();
   const effectiveCategory = showCategoryTabs
@@ -1345,13 +1346,16 @@ export default function Filter({
         continue;
 
       // deviceType: URL lowercase ("refurbished") → UI Title Case ("Refurbished")
-      if (key === "deviceType") {
-        pre[key] = [val.charAt(0).toUpperCase() + val.slice(1)];
-      } else if (key === "brand") {
-        pre[key] = [val.charAt(0).toUpperCase() + val.slice(1)];
+      if (key === "deviceType" || key === "brand") {
+        pre[key] = [val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()];
       } else {
         pre[key] = [val];
       }
+    }
+    // If deviceType is not explicit in URL query params, but defaultDeviceType is specified (e.g. /refurbished route)
+    if (!pre.deviceType && (searchParams.get("deviceType") || defaultDeviceType)) {
+      const dt = searchParams.get("deviceType") || defaultDeviceType;
+      pre.deviceType = [dt.charAt(0).toUpperCase() + dt.slice(1).toLowerCase()];
     }
     return pre;
   };
@@ -1381,16 +1385,22 @@ export default function Filter({
   const handleCategorySelect = (catId) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
+      const effectiveDT = searchParams.get("deviceType") || defaultDeviceType;
+      if (effectiveDT && !next.has("deviceType")) {
+        next.set("deviceType", effectiveDT.toLowerCase());
+      }
       if (!catId || catId === "all") {
         next.delete("category");
       } else {
-        next.set("category", catId);
+        next.set("category", catId.toLowerCase());
       }
       next.delete("page");
       return next;
     });
     setPage(1);
   };
+
+  const activeDT = activeFilters.deviceType?.[0]?.toLowerCase() || effectiveDeviceType;
 
   const apiFilters = useMemo(() => {
     const params = {
@@ -1404,8 +1414,8 @@ export default function Filter({
       params.category = effectiveCategory;
     }
 
-    if (effectiveDeviceType) {
-      params.deviceType = effectiveDeviceType;
+    if (activeDT) {
+      params.deviceType = activeDT;
     }
 
     if (priceMin > priceRange.min) params.minPrice = priceMin;
@@ -1456,7 +1466,7 @@ export default function Filter({
     return params;
   }, [
     effectiveCategory,
-    effectiveDeviceType,
+    activeDT,
     sortBy,
     priceMin,
     priceMax,
@@ -1466,10 +1476,11 @@ export default function Filter({
     page,
   ]);
 
-    const {
+  const {
     data: queryData,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: productKeys.list(apiFilters),
     queryFn: () => getAllProducts(apiFilters),
@@ -1480,7 +1491,7 @@ export default function Filter({
   const products = queryData?.products ?? [];
   const pagination = queryData?.pagination ?? {};
 
-  const sourceDevices = products.length > 0 ? products : staticDevices;
+  const sourceDevices = products;
 
   const filtered = useMemo(() => {
     let list = sourceDevices.filter((d) => {
@@ -1492,11 +1503,11 @@ export default function Filter({
         return false;
       if (d.price < priceMin || d.price > priceMax) return false;
 
-      // Filter by deviceType if effectiveDeviceType is specified (e.g. refurbished)
-      if (effectiveDeviceType) {
+      // Filter by deviceType if activeDT is specified (e.g. refurbished)
+      if (activeDT) {
         if (
           !d.deviceType ||
-          d.deviceType.toLowerCase() !== effectiveDeviceType.toLowerCase()
+          d.deviceType.toLowerCase() !== activeDT.toLowerCase()
         ) {
           return false;
         }
@@ -1594,7 +1605,12 @@ export default function Filter({
     });
 
   const resetAll = () => {
-    setActiveFilters({});
+    const defaultFilters = {};
+    const effectiveDT = searchParams.get("deviceType") || defaultDeviceType;
+    if (effectiveDT) {
+      defaultFilters.deviceType = [effectiveDT.charAt(0).toUpperCase() + effectiveDT.slice(1).toLowerCase()];
+    }
+    setActiveFilters(defaultFilters);
     setPriceMin(priceRange.min);
     setPriceMax(priceRange.max);
     setSearchQuery("");
@@ -1804,21 +1820,30 @@ export default function Filter({
 
         <div className="flex-1 min-w-0">
           {error && (
-            <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-4 py-3 text-sm flex items-center gap-2">
-              <svg
-                className="w-4 h-4 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            <div className="mb-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-4 py-3 text-sm flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 flex-shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>Backend connection error ({error?.message || "Failed to load products"}).</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="px-3 py-1 bg-amber-600 text-white rounded-lg text-xs font-bold hover:bg-amber-700 transition-colors cursor-pointer"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Backend connection error ({error?.message}). Please check your connection.
+                Retry
+              </button>
             </div>
           )}
 
@@ -1885,15 +1910,21 @@ export default function Filter({
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm px-4 text-center">
               <span className="text-5xl mb-4">🔍</span>
               <p className="text-gray-800 font-bold text-base mb-1">
-                No {effectiveCategory && effectiveCategory !== "all" ? `refurbished ${effectiveCategory}s` : pageTitle.toLowerCase()} match your filters
+                {activeDT === "refurbished"
+                  ? effectiveCategory && effectiveCategory !== "all"
+                    ? `No Refurbished ${effectiveCategory.charAt(0).toUpperCase() + effectiveCategory.slice(1)}s Available`
+                    : "No Refurbished Devices Available"
+                  : `No ${effectiveCategory && effectiveCategory !== "all" ? effectiveCategory : pageTitle.toLowerCase()} match your filters`}
               </p>
-              <p className="text-gray-400 text-sm mb-5">
-                Try relaxing or clearing your filters
+              <p className="text-gray-500 text-sm mb-5 max-w-md">
+                {activeDT === "refurbished"
+                  ? "There are currently no refurbished products matching this selection in the database. Please check back later or explore our brand new devices."
+                  : "Try relaxing or clearing your filters to see more results."}
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap justify-center">
                 {effectiveCategory && effectiveCategory !== "all" && (
                   <button
                     onClick={() => handleCategorySelect("all")}
@@ -1915,6 +1946,14 @@ export default function Filter({
                 >
                   Clear Filters
                 </button>
+                {activeDT === "refurbished" && (
+                  <button
+                    onClick={() => navigate(effectiveCategory === "laptop" ? "/laptops" : "/phones")}
+                    className="text-gray-700 bg-gray-100 hover:bg-gray-200 text-sm font-bold px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
+                  >
+                    Browse New Devices
+                  </button>
+                )}
               </div>
             </div>
           ) : (

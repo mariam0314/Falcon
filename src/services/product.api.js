@@ -41,18 +41,11 @@ const multipartRequest = async (endpoint, formData, method = "POST") => {
 const buildQuery = (filters = {}) => {
   const params = new URLSearchParams();
 
-  if (filters.deviceType) params.append("deviceType", filters.deviceType);
-  if (filters.category)   params.append("category",   filters.category);
-  if (filters.condition)  params.append("condition",  filters.condition);
-  if (filters.brand)      params.append("brand",      filters.brand);
-  if (filters.minPrice)   params.append("minPrice",   filters.minPrice);
-  if (filters.maxPrice)   params.append("maxPrice",   filters.maxPrice);
-  if (filters.location)   params.append("location",   filters.location);
-  if (filters.state)      params.append("state",      filters.state);
-  if (filters.search)     params.append("search",     filters.search);
-  if (filters.sortBy)     params.append("sortBy",     filters.sortBy);
-  if (filters.page)       params.append("page",       filters.page);
-  if (filters.limit)      params.append("limit",      filters.limit);
+  for (const [key, val] of Object.entries(filters || {})) {
+    if (val !== undefined && val !== null && val !== "") {
+      params.append(key, String(val));
+    }
+  }
 
   const query = params.toString();
   return query ? `?${query}` : "";
