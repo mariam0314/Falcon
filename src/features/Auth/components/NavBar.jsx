@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import { useSubscriptionContext } from "../../../context/subscription.context";
+import { useCart } from "../../../context/cart.context";
 import { PiCrown } from "react-icons/pi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import NavMenu from "./NavMenu";
@@ -463,6 +464,7 @@ export default function NavBar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isAuthenticated, handleLogout, updateUser } = useAuth();
+  const { count: cartCount } = useCart();
   const { subscription } = useSubscriptionContext();
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -623,6 +625,11 @@ export default function NavBar() {
                       d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-[#0077b6] text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                      {cartCount > 9 ? "9+" : cartCount}
+                    </span>
+                  )}
                 </IconBtn>
               </div>
             )}
@@ -683,6 +690,11 @@ export default function NavBar() {
                           d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                         />
                       </svg>
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 bg-[#0077b6] text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                          {cartCount > 9 ? "9+" : cartCount}
+                        </span>
+                      )}
                     </IconBtn>
                   </>
                 )}

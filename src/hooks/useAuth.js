@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAuthContext } from "../context/auth.context";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "../config/firebase.config";
-import { login, register, logout, googleAuth } from "../services/auth.api";
+import { login, register, logout, googleAuth, sendDemoOtp, verifyDemoOtp } from "../services/auth.api";
 
 export const useAuth = () => {
   const {
@@ -134,6 +134,41 @@ const setupRecaptcha = (containerId) => {
     }
   };
 
+  // ── DEMO OTP AUTH ────────────────────────────────────────────────────────
+  const handleSendDemoOtp = async ({ identifier, type }) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const data = await sendDemoOtp({ identifier, type });
+      return { success: true, data };
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Failed to send demo OTP";
+      setError(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyDemoOtp = async ({ identifier, type, otp }) => {
+    setError(null);
+    setLoading(true);
+    try {
+      const data = await verifyDemoOtp({ identifier, type, otp });
+      localStorage.setItem("accessToken", data.accessToken);
+      setUser(data.user);
+      return { success: true, user: data.user, accessToken: data.accessToken };
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message || err?.message || "Verification failed";
+      setError(msg);
+      return { success: false, error: msg };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ── GOOGLE AUTH ───────────────────────────────────────────────────────────
   const handleGoogleAuth = async (credential) => {
     setError(null);
@@ -182,6 +217,7 @@ const setupRecaptcha = (containerId) => {
     sendOtp,
     handleRegister, handleVerifyRegisterOtp,
     handleLogin, handleVerifyLoginOtp,
+    handleSendDemoOtp, handleVerifyDemoOtp,
     handleGoogleAuth, handleLogout,
     updateUser, clearError, clearMessage,
   };

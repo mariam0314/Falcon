@@ -13,71 +13,138 @@ export function getDeviceFallback(category = "mobile") {
   return "/products/fallback-mobile.png";
 }
 
+// Normalized lookup map for verified product image names
+const EXACT_MODEL_MAP = {
+  // Apple Mobiles
+  "iphone 17 pro max": "/products/iphone-17-pro-max.png",
+  "iphone 17 pro": "/products/iphone-17-pro.png",
+  "iphone 17": "/products/iphone-17.png",
+  "iphone 16 pro max": "/products/iphone-16-pro-max.png",
+  "iphone 16 pro": "/products/iphone-16-pro.png",
+  "iphone 16": "/products/iphone-16.png",
+  "iphone 15 pro max": "/products/iphone-15-pro-max.png",
+  "iphone 15": "/products/iphone-15.png",
+  "iphone 14": "/products/iphone-14.png",
+  "iphone 13": "/products/iphone-13.png",
+
+  // Samsung Mobiles
+  "galaxy s25 ultra": "/products/galaxy-s25-ultra.png",
+  "galaxy s25+": "/products/galaxy-s25-plus.png",
+  "galaxy s25 plus": "/products/galaxy-s25-plus.png",
+  "galaxy s25": "/products/galaxy-s25.png",
+  "galaxy s24 ultra": "/products/galaxy-s24-ultra.png",
+  "galaxy z fold": "/products/galaxy-z-fold.png",
+  "galaxy z flip": "/products/galaxy-z-flip.png",
+  "galaxy a56": "/products/galaxy-a56.png",
+  "galaxy a36": "/products/galaxy-a36.png",
+
+  // OnePlus Mobiles
+  "oneplus 13": "/products/oneplus-13.png",
+  "oneplus 13r": "/products/oneplus-13r.png",
+  "oneplus 12": "/products/oneplus-12.png",
+  "oneplus nord 5": "/products/oneplus-nord-5.png",
+  "oneplus nord ce": "/products/oneplus-nord-ce.png",
+
+  // Google Mobiles
+  "pixel 10 pro xl": "/products/pixel-10-pro-xl.png",
+  "pixel 10 pro": "/products/pixel-10-pro.png",
+  "pixel 9 pro": "/products/pixel-9-pro.png",
+  "pixel 9a": "/products/pixel-9a.png",
+
+  // Other Brand Mobiles
+  "xiaomi 15 ultra": "/products/xiaomi-15-ultra.png",
+  "redmi note 14 pro+": "/products/redmi-note-14-pro-plus.png",
+  "redmi note 14 pro plus": "/products/redmi-note-14-pro-plus.png",
+  "poco x7 pro": "/products/poco-x7-pro.png",
+  "nothing phone (3)": "/products/nothing-phone-3.png",
+  "nothing phone 3": "/products/nothing-phone-3.png",
+  "nothing phone (3a)": "/products/nothing-phone-3a.png",
+  "nothing phone 3a": "/products/nothing-phone-3a.png",
+  "vivo x200 pro": "/products/vivo-x200-pro.png",
+  "vivo v50": "/products/vivo-v50.png",
+  "oppo find x8 pro": "/products/oppo-find-x8-pro.png",
+  "oppo reno 13 pro": "/products/oppo-reno-13-pro.png",
+  "realme gt 7 pro": "/products/realme-gt-7-pro.png",
+  "motorola edge 60 pro": "/products/motorola-edge-60-pro.png",
+
+  // Apple Laptops
+  "macbook air m4 13-inch": "/products/macbook-air-m4-13.png",
+  "macbook air m4 13": "/products/macbook-air-m4-13.png",
+  "macbook air m4 15-inch": "/products/macbook-air-m4-15.png",
+  "macbook air m4 15": "/products/macbook-air-m4-15.png",
+  "macbook pro m4 14-inch": "/products/macbook-pro-m4-14.png",
+  "macbook pro m4 14": "/products/macbook-pro-m4-14.png",
+  "macbook pro m4 pro": "/products/macbook-pro-m4-pro.png",
+  "macbook pro m4 max": "/products/macbook-pro-m4-max.png",
+
+  // HP Laptops
+  "hp pavilion 15": "/products/hp-pavilion-15.png",
+  "hp pavilion plus": "/products/hp-pavilion-plus.png",
+  "hp envy x360": "/products/hp-envy-x360.png",
+  "hp spectre x360": "/products/hp-spectre-x360.png",
+  "hp victus": "/products/hp-victus.png",
+  "hp omen": "/products/hp-omen.png",
+
+  // Dell Laptops
+  "dell inspiron 15": "/products/dell-inspiron-15.png",
+  "dell inspiron 14": "/products/dell-inspiron-14.png",
+  "dell xps 13": "/products/dell-xps-13.png",
+  "dell xps 15": "/products/dell-xps-15.png",
+  "dell g15": "/products/dell-g15.png",
+
+  // Lenovo Laptops
+  "lenovo ideapad slim 5": "/products/lenovo-ideapad-slim-5.png",
+  "lenovo yoga 7": "/products/lenovo-yoga-7.png",
+  "lenovo thinkpad e14": "/products/lenovo-thinkpad-e14.png",
+  "lenovo legion 5": "/products/lenovo-legion-5.png",
+  "lenovo loq": "/products/lenovo-loq.png",
+
+  // ASUS Laptops
+  "asus vivobook 15": "/products/asus-vivobook-15.png",
+  "asus vivobook s 14": "/products/asus-vivobook-s14.png",
+  "asus zenbook 14": "/products/asus-zenbook-14.png",
+  "asus rog strix g16": "/products/asus-rog-strix-g16.png",
+  "asus tuf gaming a15": "/products/asus-tuf-gaming-a15.png",
+
+  // Acer & MSI Laptops
+  "acer aspire 7": "/products/acer-aspire-7.png",
+  "acer swift go 14": "/products/acer-swift-go-14.png",
+  "acer nitro v 15": "/products/acer-nitro-v15.png",
+  "acer predator helios neo": "/products/acer-predator-helios-neo.png",
+  "msi thin 15": "/products/msi-thin-15.png",
+  "msi katana 15": "/products/msi-katana-15.png",
+};
+
 export function getDeviceImage(device) {
   if (!device) return "/products/fallback-mobile.png";
 
-  const img = device.images?.[0] || device.image;
-  // If a valid product photo exists (and is not the brand logo)
-  if (img && typeof img === "string" && !img.includes("logo.png") && !img.includes("device-placeholder") && !img.includes("placehold.co")) {
-    // If it's the legacy phone.png, verify whether it's the old logo or new phone
-    if (!img.endsWith("/phone.png") && img !== "phone.png") {
-      return img;
-    }
+  const rawImg = device.images?.[0] || device.image;
+  // If a valid product photo exists (and is not placeholder / logo)
+  if (
+    rawImg &&
+    typeof rawImg === "string" &&
+    !rawImg.includes("logo.png") &&
+    !rawImg.includes("device-placeholder") &&
+    !rawImg.includes("placehold.co") &&
+    !rawImg.endsWith("/phone.png") &&
+    rawImg !== "phone.png"
+  ) {
+    return rawImg;
   }
 
   // Model-level matching for known catalog devices
-  const title = String(device.title || device.name || device.model || "").toLowerCase();
-  const brand = String(device.brand || "").toLowerCase();
+  const title = String(device.title || device.name || device.model || "").trim().toLowerCase();
   const cat = String(device.category || "").toLowerCase();
 
-  // iPhones
-  if (title.includes("iphone 15 pro") || title.includes("15 pro max") || title.includes("15 pro")) {
-    return "/products/iphone-15-pro-max.png";
-  }
-  if (title.includes("iphone 13") || (brand.includes("apple") && title.includes("13"))) {
-    return "/products/iphone-13.png";
-  }
-  if (brand.includes("apple") && (title.includes("iphone") || cat === "mobile")) {
-    return "/products/iphone-15-pro-max.png";
+  if (EXACT_MODEL_MAP[title]) {
+    return EXACT_MODEL_MAP[title];
   }
 
-  // Samsung
-  if (title.includes("s24 ultra") || title.includes("galaxy s24") || (brand.includes("samsung") && title.includes("ultra"))) {
-    return "/products/samsung-s24-ultra.png";
-  }
-  if (brand.includes("samsung") && cat === "mobile") {
-    return "/products/samsung-s24-ultra.png";
-  }
-
-  // OnePlus
-  if (title.includes("oneplus 12") || (brand.includes("oneplus") && title.includes("12"))) {
-    return "/products/oneplus-12.png";
-  }
-  if (brand.includes("oneplus") && cat === "mobile") {
-    return "/products/oneplus-12.png";
-  }
-
-  // Laptops
-  if (title.includes("macbook") || (brand.includes("apple") && cat === "laptop")) {
-    return "/products/macbook-air-m2.png";
-  }
-  if (title.includes("xps") || title.includes("dell") || (brand.includes("dell") && cat === "laptop")) {
-    return "/products/dell-xps-15.png";
-  }
-
-  // Smartwatches
-  if (title.includes("watch") || cat === "smartwatch") {
-    return "/products/apple-watch-ultra-2.png";
-  }
-
-  // Tablets
-  if (title.includes("ipad") || title.includes("tab") || cat === "tablet") {
-    return "/products/ipad-air-m2.png";
-  }
-
-  // Headphones
-  if (title.includes("sony") || title.includes("wh-1000") || title.includes("headphone") || cat === "audio") {
-    return "/products/sony-wh1000xm5.png";
+  // Substring match in map keys
+  for (const [key, imgPath] of Object.entries(EXACT_MODEL_MAP)) {
+    if (title.includes(key) || key.includes(title)) {
+      return imgPath;
+    }
   }
 
   // Fallback by category

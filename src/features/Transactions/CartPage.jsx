@@ -12,11 +12,8 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { useAuth } from "../../hooks/useAuth";
-import {
-  getCart,
-  removeFromCart,
-  checkoutMultiple,
-} from "../../services/shop.api";
+import { useCart } from "../../context/cart.context";
+import { checkoutMultiple } from "../../services/shop.api";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder",
@@ -84,11 +81,12 @@ function Toast({ msg, type, onClose }) {
 }
 
 // ─── Cart item row ────────────────────────────────────────────────────────────
-function CartItem({ item, onRemove }) {
+function CartItem({ item, onRemove, onUpdateQty }) {
   const [removing, setRemoving] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const navigate = useNavigate();
 
-  const { product, addedAt } = item;
+  const { product, addedAt, quantity = 1 } = item;
   if (!product) return null;
 
   const discount = product.originalPrice
@@ -100,15 +98,26 @@ function CartItem({ item, onRemove }) {
   const handleRemove = async () => {
     setRemoving(true);
     try {
-      await removeFromCart(product._id);
-      onRemove(product._id);
+      await onRemove(product._id);
     } catch {
       setRemoving(false);
     }
   };
 
+  const handleQtyChange = async (newQty) => {
+    if (newQty < 1 || updating) return;
+    setUpdating(true);
+    try {
+      await onUpdateQty(product._id, newQty);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const itemSubtotal = (product.price || 0) * quantity;
+
   return (
-    <div className="flex items-start gap-4 bg-white rounded-2xl border border-slate-100 p-4 hover:border-[#1132d4]/20 hover:shadow-[0_4px_16px_rgba(17,50,212,0.06)] transition-all duration-200">
+    <div className="flex items-start gap-4 bg-white rounded-2xl border border-slate-100 p-4 hover:border-[#0077b6]/20 hover:shadow-[0_4px_16px_rgba(0,119,182,0.06)] transition-all duration-200">
       {/* Thumb */}
       <div
         onClick={() => navigate(`/product/${product._id}`)}
@@ -126,7 +135,7 @@ function CartItem({ item, onRemove }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2 flex-wrap">
           {product.brand && (
-            <span className="text-[10px] font-black text-[#1132d4] uppercase tracking-widest">
+            <span className="text-[10px] font-black text-[#0077b6] uppercase tracking-widest">
               {product.brand}
             </span>
           )}
@@ -137,18 +146,25 @@ function CartItem({ item, onRemove }) {
           )}
         </div>
         <p
-          className="text-sm font-bold text-slate-800 mt-1 leading-snug line-clamp-2 cursor-pointer hover:text-[#1132d4]"
+          className="text-sm font-bold text-slate-800 mt-1 leading-snug line-clamp-2 cursor-pointer hover:text-[#0077b6]"
           onClick={() => navigate(`/product/${product._id}`)}
         >
           {product.title}
         </p>
+
+        {/* Pricing */}
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           <span className="text-base font-extrabold text-slate-900">
-            ₹{product.price?.toLocaleString("en-IN")}
+            ₹{itemSubtotal.toLocaleString("en-IN")}
           </span>
+          {quantity > 1 && (
+            <span className="text-xs text-slate-400">
+              (₹{product.price?.toLocaleString("en-IN")} × {quantity})
+            </span>
+          )}
           {product.originalPrice && (
-            <span className="text-sm text-slate-400 line-through">
-              ₹{product.originalPrice?.toLocaleString("en-IN")}
+            <span className="text-xs text-slate-400 line-through">
+              ₹{(product.originalPrice * quantity).toLocaleString("en-IN")}
             </span>
           )}
           {discount > 0 && (
@@ -157,15 +173,36 @@ function CartItem({ item, onRemove }) {
             </span>
           )}
         </div>
-        <p className="text-xs text-slate-400 mt-1">
-          Added{" "}
-          {addedAt
-            ? new Date(addedAt).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "short",
-              })
-            : "recently"}
-        </p>
+
+        {/* Quantity Controls */}
+        <div className="flex items-center gap-3 mt-3">
+          <div className="inline-flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+            <button
+              type="button"
+              onClick={() => handleQtyChange(quantity - 1)}
+              disabled={quantity <= 1 || updating}
+              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 text-sm font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              title="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="w-8 text-center text-xs font-black text-slate-800 select-none">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleQtyChange(quantity + 1)}
+              disabled={updating}
+              className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 text-sm font-bold transition-colors"
+              title="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+          <span className="text-[11px] text-slate-400">
+            Added {addedAt ? new Date(addedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "recently"}
+          </span>
+        </div>
       </div>
 
       {/* Remove */}
@@ -173,6 +210,7 @@ function CartItem({ item, onRemove }) {
         onClick={handleRemove}
         disabled={removing}
         className="p-2 rounded-xl border border-slate-200 text-slate-400 hover:border-red-300 hover:text-red-500 hover:bg-red-50 transition-all flex-shrink-0"
+        title="Remove product"
       >
         {removing ? (
           <span className="w-4 h-4 border-2 border-slate-200 border-t-red-400 rounded-full animate-spin block" />
@@ -184,7 +222,7 @@ function CartItem({ item, onRemove }) {
   );
 }
 
-// ─── Checkout form (wrapped in Stripe Elements) ───────────────────────────────
+// ─── Checkout form ───────────────────────────────────────────────────────────
 function CheckoutForm({ items, total, onSuccess, onError }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -205,19 +243,17 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
     setProcessing(true);
 
     try {
-      let paymentId = null;
-
       if (method === "Card") {
         if (!stripe || !elements) {
           setProcessing(false);
           return;
         }
-        if (method === "Card" && !name.trim()) {
+        if (!name.trim()) {
           setStripeErr("Cardholder name is required");
           setProcessing(false);
           return;
         }
-        const { error, paymentMethod } = await stripe.createPaymentMethod({
+        const { error } = await stripe.createPaymentMethod({
           type: "card",
           card: elements.getElement(CardNumberElement),
           billing_details: { name },
@@ -227,7 +263,6 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
           setProcessing(false);
           return;
         }
-        paymentId = paymentMethod.id;
       }
 
       await checkoutMultiple(method);
@@ -250,104 +285,102 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
               key={m.id}
               type="button"
               onClick={() => setMethod(m.id)}
-              className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-xs font-bold transition-all ${
+              className={`p-3 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all ${
                 method === m.id
-                  ? "border-[#1132d4] bg-[#1132d4]/5 text-[#1132d4]"
-                  : "border-slate-200 text-slate-600 hover:border-[#1132d4]/40"
+                  ? "border-[#0077b6] bg-[#e8f4fd] text-[#0077b6]"
+                  : "border-slate-200 text-slate-600 hover:border-slate-300"
               }`}
             >
-              <span className="text-xl">{m.icon}</span>
+              <span className="text-lg">{m.icon}</span>
               {m.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Card fields */}
+      {/* Inputs per method */}
       {method === "Card" && (
-        <div className="space-y-3">
+        <div className="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-600 mb-1">
               Cardholder Name
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              required
-              placeholder="John Doe"
-              className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1132d4]/30 focus:border-[#1132d4]"
+              placeholder="e.g. Alex Smith"
+              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0077b6]"
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-600 mb-1">
               Card Number
             </label>
-            <div className="w-full rounded-xl border border-slate-200 px-4 py-3 focus-within:ring-2 focus-within:ring-[#1132d4]/30 focus-within:border-[#1132d4]">
+            <div className="bg-white border border-slate-200 rounded-xl p-2.5">
               <CardNumberElement options={STRIPE_STYLE} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                Expiry
+              <label className="block text-xs font-bold text-slate-600 mb-1">
+                Expiry Date
               </label>
-              <div className="rounded-xl border border-slate-200 px-4 py-3 focus-within:ring-2 focus-within:ring-[#1132d4]/30">
+              <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                 <CardExpiryElement options={STRIPE_STYLE} />
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                CVV
+              <label className="block text-xs font-bold text-slate-600 mb-1">
+                CVC / CVV
               </label>
-              <div className="rounded-xl border border-slate-200 px-4 py-3 focus-within:ring-2 focus-within:ring-[#1132d4]/30">
+              <div className="bg-white border border-slate-200 rounded-xl p-2.5">
                 <CardCvcElement options={STRIPE_STYLE} />
               </div>
             </div>
           </div>
           {stripeErr && (
-            <p className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-2">
-              {stripeErr}
-            </p>
+            <p className="text-red-500 text-xs mt-1 font-medium">{stripeErr}</p>
           )}
         </div>
       )}
 
       {method === "UPI" && (
-        <div>
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-            UPI ID
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <label className="block text-xs font-bold text-slate-600 mb-1">
+            Virtual Payment Address (UPI ID)
           </label>
           <input
             type="text"
             value={upiId}
             onChange={(e) => setUpiId(e.target.value)}
-            placeholder="name@upi"
-            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1132d4]/30 focus:border-[#1132d4]"
+            placeholder="username@upi"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0077b6]"
           />
         </div>
       )}
 
       {method === "NetBanking" && (
-        <div>
-          <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-            Select Bank
+        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <label className="block text-xs font-bold text-slate-600 mb-1">
+            Select Your Bank
           </label>
           <select
             value={bank}
             onChange={(e) => setBank(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1132d4]/30"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#0077b6]"
           >
-            {["SBI", "HDFC", "ICICI", "Axis", "Kotak"].map((b) => (
-              <option key={b}>{b}</option>
-            ))}
+            <option value="SBI">State Bank of India</option>
+            <option value="HDFC">HDFC Bank</option>
+            <option value="ICICI">ICICI Bank</option>
+            <option value="Axis">Axis Bank</option>
           </select>
         </div>
       )}
 
       {method === "Cash" && (
-        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-          Cash on delivery — payment collected at handover.
+        <p className="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          Cash on delivery — payment collected at doorstep handover.
         </p>
       )}
 
@@ -355,7 +388,7 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
       <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 space-y-2.5">
         <div className="flex justify-between text-sm">
           <span className="text-slate-500">
-            Subtotal ({items.length} items)
+            Subtotal ({items.reduce((s, i) => s + (i.quantity || 1), 0)} items)
           </span>
           <span className="font-semibold">
             ₹{total.toLocaleString("en-IN")}
@@ -371,22 +404,22 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
         </div>
         <div className="border-t border-slate-200 pt-2.5 flex justify-between">
           <span className="text-base font-extrabold text-slate-900">Total</span>
-          <span className="text-xl font-extrabold text-[#1132d4]">
+          <span className="text-xl font-extrabold text-[#0077b6]">
             ₹{grand.toLocaleString("en-IN")}
           </span>
         </div>
       </div>
 
       {/* Security note */}
-      <div className="flex items-center gap-2.5 text-xs text-slate-500 bg-[#1132d4]/4 rounded-xl px-4 py-3">
-        <Ic d={I.shield} className="w-4 h-4 text-[#1132d4] flex-shrink-0" />
-        Your payment is encrypted and processed securely via Stripe.
+      <div className="flex items-center gap-2.5 text-xs text-slate-500 bg-[#e8f4fd] rounded-xl px-4 py-3">
+        <Ic d={I.shield} className="w-4 h-4 text-[#0077b6] flex-shrink-0" />
+        Demo secure checkout with FALCON protection guarantee.
       </div>
 
       <button
         type="submit"
         disabled={processing || (method === "Card" && !stripe)}
-        className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl bg-[#1132d4] text-white font-extrabold text-sm shadow-[0_4px_20px_rgba(17,50,212,0.35)] hover:bg-[#0d28b8] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+        className="w-full flex items-center justify-center gap-2.5 py-4 rounded-2xl bg-[#0077b6] text-white font-extrabold text-sm shadow-[0_4px_20px_rgba(0,119,182,0.35)] hover:bg-[#005f8f] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
       >
         {processing ? (
           <>
@@ -408,10 +441,8 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
 export default function CartPage() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { items, total, loading, removeItem, updateQuantity, clear } = useCart();
 
-  const [items, setItems] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [toast, setToast] = useState(null);
 
@@ -419,32 +450,30 @@ export default function CartPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/login");
-      return;
+      navigate("/login?redirect=/cart");
     }
-    setLoading(true);
-    getCart()
-      .then((res) => {
-        setItems(res.data ?? []);
-        setTotal(res.total ?? 0);
-      })
-      .catch(() => showToast("Failed to load cart", "error"))
-      .finally(() => setLoading(false));
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
-  const handleRemove = (productId) => {
-    setItems((prev) => {
-      const next = prev.filter((i) => i.product?._id !== productId);
-      setTotal(next.reduce((s, i) => s + (i.product?.price || 0), 0));
-      return next;
-    });
-    showToast("Removed from cart");
+  const handleRemove = async (productId) => {
+    try {
+      await removeItem(productId);
+      showToast("Removed from cart");
+    } catch {
+      showToast("Failed to remove item", "error");
+    }
+  };
+
+  const handleUpdateQty = async (productId, newQty) => {
+    try {
+      await updateQuantity(productId, newQty);
+    } catch {
+      showToast("Failed to update quantity", "error");
+    }
   };
 
   const handleSuccess = () => {
     setSuccess(true);
-    setItems([]);
-    setTotal(0);
+    clear();
   };
 
   // ── Success screen ────────────────────────────────────────────────────────
@@ -454,26 +483,22 @@ export default function CartPage() {
         <div className="w-20 h-20 rounded-3xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
           <Ic d={I.check} className="w-10 h-10 text-emerald-500" />
         </div>
-        <h2
-          className="text-2xl font-extrabold text-slate-900"
-          style={{ fontFamily: "'Sora', sans-serif" }}
-        >
-          Order Placed!
+        <h2 className="text-2xl font-extrabold text-slate-900">
+          Order Placed Successfully!
         </h2>
         <p className="text-slate-500 text-sm text-center max-w-xs">
-          Your order is pending seller confirmation. We'll notify you once it's
-          confirmed.
+          Your order has been recorded. Thank you for using FALCON.
         </p>
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/")}
             className="px-5 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
           >
-            Browse More
+            Browse Devices
           </button>
           <button
             onClick={() => navigate("/profile")}
-            className="px-5 py-2.5 rounded-xl bg-[#1132d4] text-white text-sm font-bold shadow-[0_4px_16px_rgba(17,50,212,0.3)] hover:bg-[#0d28b8] transition-all"
+            className="px-5 py-2.5 rounded-xl bg-[#0077b6] text-white text-sm font-bold shadow-[0_4px_16px_rgba(0,119,182,0.3)] hover:bg-[#005f8f] transition-all"
           >
             View Orders
           </button>
@@ -483,30 +508,20 @@ export default function CartPage() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
-        .cart-root { font-family: 'DM Sans', sans-serif; }
-        @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-        .slide-up { animation: slideUp 0.4s ease both; }
-      `}</style>
-
       <div className="cart-root min-h-screen bg-slate-50/50">
         {/* Header */}
         <div className="bg-white border-b border-slate-100 px-4 md:px-8 py-4 flex items-center gap-4 sticky top-0 z-20">
           <button
             onClick={() => navigate(-1)}
-            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-[#1132d4] hover:border-[#1132d4] transition-all"
+            className="p-2 rounded-xl border border-slate-200 text-slate-500 hover:text-[#0077b6] hover:border-[#0077b6] transition-all"
           >
             <Ic d={I.arrow} />
           </button>
           <div>
-            <h1
-              className="text-lg font-extrabold text-slate-900"
-              style={{ fontFamily: "'Sora', sans-serif" }}
-            >
-              Cart{" "}
+            <h1 className="text-lg font-extrabold text-slate-900">
+              My Cart{" "}
               {!loading && items.length > 0 && (
-                <span className="text-[#1132d4]">({items.length})</span>
+                <span className="text-[#0077b6]">({items.reduce((s, i) => s + (i.quantity || 1), 0)})</span>
               )}
             </h1>
           </div>
@@ -521,54 +536,54 @@ export default function CartPage() {
 
         {loading ? (
           <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="w-8 h-8 border-3 border-[#1132d4]/20 border-t-[#1132d4] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[#0077b6]/20 border-t-[#0077b6] rounded-full animate-spin" />
           </div>
         ) : items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-4 py-24 slide-up">
+          <div className="flex flex-col items-center justify-center gap-4 py-24">
             <div className="w-20 h-20 rounded-3xl bg-slate-100 flex items-center justify-center">
               <Ic d={I.cart} className="w-10 h-10 text-slate-300" />
             </div>
-            <h2
-              className="text-xl font-extrabold text-slate-700"
-              style={{ fontFamily: "'Sora', sans-serif" }}
-            >
+            <h2 className="text-xl font-extrabold text-slate-700">
               Your cart is empty
             </h2>
             <p className="text-sm text-slate-400">
-              Add products to cart to checkout
+              Browse our catalog of genuine phones and laptops to add products.
             </p>
             <button
-              onClick={() => navigate("/")}
-              className="mt-2 bg-[#1132d4] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-[0_4px_16px_rgba(17,50,212,0.3)] hover:bg-[#0d28b8] transition-all"
+              onClick={() => navigate("/phones")}
+              className="mt-2 bg-[#0077b6] text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-[0_4px_16px_rgba(0,119,182,0.3)] hover:bg-[#005f8f] transition-all"
             >
-              Browse Products
+              Browse Mobiles
             </button>
           </div>
         ) : (
-          <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 slide-up">
+          <div className="max-w-5xl mx-auto px-4 md:px-8 py-8">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
               {/* Items list */}
               <div className="lg:col-span-3 space-y-3">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">
-                  {items.length} item{items.length > 1 ? "s" : ""} in cart
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    {items.length} Product{items.length > 1 ? "s" : ""} in cart
+                  </p>
+                  <span className="text-xs font-bold text-[#0077b6]">
+                    Total Quantity: {items.reduce((s, i) => s + (i.quantity || 1), 0)}
+                  </span>
+                </div>
                 {items.map((item) => (
                   <CartItem
                     key={item.product?._id}
                     item={item}
                     onRemove={handleRemove}
+                    onUpdateQty={handleUpdateQty}
                   />
                 ))}
               </div>
 
               {/* Checkout panel */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_24px_rgba(17,50,212,0.06)] p-6 sticky top-20">
-                  <h3
-                    className="text-base font-extrabold text-slate-900 mb-5"
-                    style={{ fontFamily: "'Sora', sans-serif" }}
-                  >
-                    Checkout
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_4px_24px_rgba(0,119,182,0.06)] p-6 sticky top-20">
+                  <h3 className="text-base font-extrabold text-slate-900 mb-5">
+                    Order Summary &amp; Checkout
                   </h3>
                   <Elements stripe={stripePromise}>
                     <CheckoutForm

@@ -69,6 +69,24 @@ export async function login({ firebaseToken }) {
 }
 
 /**
+ * Send Demo OTP (1234) for email or mobile
+ * @param {{ identifier: string, type: 'email' | 'mobile' }}
+ */
+export async function sendDemoOtp({ identifier, type }) {
+  const response = await api.post("/api/auth/demo/send-otp", { identifier, type });
+  return response.data;
+}
+
+/**
+ * Verify Demo OTP (1234) and authenticate user
+ * @param {{ identifier: string, type: 'email' | 'mobile', otp: string }}
+ */
+export async function verifyDemoOtp({ identifier, type, otp }) {
+  const response = await api.post("/api/auth/demo/verify-otp", { identifier, type, otp });
+  return response.data;
+}
+
+/**
  * Google Sign-In / Sign-Up
  * @param {string} credential - Google ID token from Google One Tap or OAuth popup
  */

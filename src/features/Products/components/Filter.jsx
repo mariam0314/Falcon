@@ -33,6 +33,14 @@ function resolveFieldValue(device, key) {
       return device.specs?.display?.type;
     case "specs.resolution":
       return device.specs?.display?.resolutionType;
+    case "specs.os":
+      return device.specs?.os;
+    case "specs.processor":
+      return device.specs?.processor || device.specs?.performance?.chipsetFull;
+    case "specs.graphics":
+      return device.specs?.graphics;
+    case "specs.laptopType":
+      return device.specs?.laptopType || device.subcategory;
     default:
       return device[key];
   }
@@ -41,40 +49,47 @@ function resolveFieldValue(device, key) {
 function extractSpecChips(device) {
   const chips = [];
   if (device.storage) chips.push(device.storage);
-  if (device.color) chips.push(device.color);
   if (device.specs?.performance?.ram) chips.push(device.specs.performance.ram);
-  if (device.specs?.performance?.chipsetFull)
+  if (device.specs?.processor) chips.push(device.specs.processor);
+  else if (device.specs?.performance?.chipsetFull)
     chips.push(device.specs.performance.chipsetFull);
+  if (device.specs?.graphics) chips.push(device.specs.graphics);
+  if (device.specs?.laptopType) chips.push(device.specs.laptopType);
+  if (device.specs?.os) chips.push(device.specs.os);
   if (device.specs?.display?.sizeInches)
     chips.push(`${device.specs.display.sizeInches}"`);
   if (device.specs?.display?.type) chips.push(device.specs.display.type);
   if (device.specs?.display?.refreshRate)
     chips.push(device.specs.display.refreshRate);
-  if (device.specs?.display?.resolutionType)
-    chips.push(device.specs.display.resolutionType);
   if (device.specs?.battery?.capacity)
     chips.push(device.specs.battery.capacity);
-  if (device.specs?.battery?.wiredCharging)
-    chips.push(device.specs.battery.wiredCharging);
   if (device.specs?.rearCamera?.primary)
     chips.push(`${device.specs.rearCamera.primary} Rear`);
-  if (device.specs?.frontCamera)
-    chips.push(`${device.specs.frontCamera} Front`);
-  if (device.specs?.storageType) chips.push(device.specs.storageType);
   return chips.filter(Boolean).slice(0, 6);
 }
 
 function extractSpecRows(device) {
   const rows = [];
+  if (device.brand) rows.push({ label: "Brand", value: device.brand });
   if (device.storage) rows.push({ label: "Storage", value: device.storage });
   if (device.color) rows.push({ label: "Color", value: device.color });
   if (device.specs?.performance?.ram)
     rows.push({ label: "RAM", value: device.specs.performance.ram });
-  if (device.specs?.performance?.chipsetFull)
+  if (device.specs?.processor)
+    rows.push({ label: "Processor", value: device.specs.processor });
+  else if (device.specs?.performance?.chipsetFull)
     rows.push({
       label: "Chipset",
       value: device.specs.performance.chipsetFull,
     });
+  if (device.specs?.graphics)
+    rows.push({ label: "Graphics", value: device.specs.graphics });
+  if (device.specs?.os)
+    rows.push({ label: "Operating System", value: device.specs.os });
+  if (device.specs?.laptopType)
+    rows.push({ label: "Laptop Type", value: device.specs.laptopType });
+  if (device.specs?.colors && device.specs.colors.length > 0)
+    rows.push({ label: "Available Colors", value: device.specs.colors.join(", ") });
   if (device.specs?.display?.sizeInches)
     rows.push({
       label: "Screen",
@@ -1333,7 +1348,7 @@ export default function Filter({ data, category }) {
       category,
       status: "available",
       sortBy,
-      limit: 20,
+      limit: 100,
       page,
     };
 
@@ -1353,11 +1368,31 @@ export default function Filter({ data, category }) {
         continue;
       }
       if (key === "brand") {
-        params.brand = vals[0];
+        params.brand = vals.join(",");
         continue;
       }
       if (key === "storage") {
-        params.storage = vals[0];
+        params.storage = vals.join(",");
+        continue;
+      }
+      if (key === "specs.ram") {
+        params["specs.ram"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.os") {
+        params["specs.os"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.processor") {
+        params["specs.processor"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.graphics") {
+        params["specs.graphics"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.laptopType") {
+        params["specs.laptopType"] = vals.join(",");
         continue;
       }
     }
@@ -1476,13 +1511,7 @@ export default function Filter({ data, category }) {
     setPriceMin(priceRange.min);
     setPriceMax(priceRange.max);
     setSearchQuery("");
-    resetFilters();
-    fetchProducts({
-      category,
-      status: "available",
-      sortBy: "newest",
-      limit: 20,
-    });
+    setPage(1);
   };
 
   const handlePageChange = (p) => {

@@ -2,6 +2,7 @@ import { lazy, memo, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AdminProvider } from "./context/admin.context";
 import { AuthProvider } from "./context/auth.context";
+import { CartProvider } from "./context/cart.context";
 import { BuySellProvider } from "./context/buysell.context";
 import { ProductProvider } from "./context/product.context";
 import { SubscriptionProvider } from "./context/subscription.context";
@@ -135,7 +136,8 @@ const BareLayout = ({ children }) => children;
 export default function App() {
   return (
     <AuthProvider>
-      <AdminProvider>
+      <CartProvider>
+        <AdminProvider>
         <ProductProvider>
           <BuySellProvider>
             <SubscriptionProvider>
@@ -432,6 +434,7 @@ export default function App() {
           </BuySellProvider>
         </ProductProvider>
       </AdminProvider>
+      </CartProvider>
     </AuthProvider>
   );
 }

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate }         from "react-router-dom";
 import { useAuth }             from "../../hooks/useAuth";
+import { useCart }             from "../../context/cart.context";
 import {
   getWishlist, removeFromWishlist,
   addToCart, checkCart,clearWishlist,
@@ -60,6 +61,7 @@ function Skeleton() {
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
 function WishlistCard({ product, onRemove, onCartChange, navigate }) {
+  const { addItem } = useCart();
   const [cartState, setCartState] = useState("idle"); // idle | loading | added
   const [removing,  setRemoving]  = useState(false);
 
@@ -72,7 +74,7 @@ function WishlistCard({ product, onRemove, onCartChange, navigate }) {
     if (cartState === "added") { navigate("/cart"); return; }
     setCartState("loading");
     try {
-      await addToCart(product._id);
+      await addItem(product._id);
       setCartState("added");
       onCartChange?.();
     } catch { setCartState("idle"); }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
+import { useCart } from "../../../context/cart.context";
 import { getProductById } from "../../../services/product.api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productKeys } from "../../../hooks/useProducts.query";
@@ -467,6 +468,7 @@ export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { addItem, isInCart: checkIsInCart } = useCart();
   const qc = useQueryClient();
   const [wLoading, setWLoading] = useState(false);
   const [cLoading, setCLoading] = useState(false);
@@ -482,14 +484,14 @@ export default function ProductDetails() {
     checkWishlist(id)
       .then((r) => setWishlisted(r.isWishlisted))
       .catch(() => {});
-    checkCart(id)
-      .then((r) => setInCart(r.isInCart))
-      .catch(() => {});
   }, [id, isAuthenticated]);
 
   const handleBuyNow = () => {
     if (!isAuthenticated) {
-      navigate("/login");
+      const returnUrl = `/product/${id}`;
+      navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, {
+        state: { returnUrl },
+      });
       return;
     }
     setShowBuyNow(true);
@@ -515,23 +517,53 @@ export default function ProductDetails() {
     },
   });
 
-  const { data: inCart = false } = useCartStatus(id, isAuthenticated);
-  const cartMutation = useMutation({
-    mutationFn: () => addToCart(id),
-    onSuccess: () => {
-      qc.setQueryData(["cart", "check", id], { isInCart: true });
-    },
-  });
+  const { data: inCartStatus = false } = useCartStatus(id, isAuthenticated);
+  const inCart = checkIsInCart(id) || inCartStatus;
 
   const handleWishlist = () => {
-    if (!isAuthenticated) { navigate("/login"); return; }
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=${encodeURIComponent(`/product/${id}`)}`, {
+        state: { returnUrl: `/product/${id}` },
+      });
+      return;
+    }
     wishlistMutation.mutate();
   };
 
-  const handleAddToCart = () => {
-    if (!isAuthenticated) { navigate("/login"); return; }
-    if (inCart) { navigate("/cart"); return; }
-    cartMutation.mutate();
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      const returnUrl = `/product/${id}`;
+      const pendingCart = {
+        productId: id,
+        productTitle: product?.title || "Device",
+        quantity: 1,
+        returnUrl,
+      };
+      sessionStorage.setItem("falcon_pending_cart", JSON.stringify(pendingCart));
+      navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, {
+        state: {
+          returnUrl,
+          pendingCart,
+        },
+      });
+      return;
+    }
+
+    if (inCart) {
+      navigate("/cart");
+      return;
+    }
+
+    setCLoading(true);
+    try {
+      await addItem(id, 1);
+      qc.setQueryData(["cart", "check", id], { isInCart: true });
+      showToast(`Added "${product?.title || "Product"}" to your cart!`);
+    } catch (err) {
+      showToast(err?.message || "Failed to add to cart", "error");
+    } finally {
+      setCLoading(false);
+    }
   };
 
 

@@ -30,7 +30,10 @@ export const clearWishlist       = ()  => request("/wishlist", { method: "DELETE
 
 // ─── CART ─────────────────────────────────────────────────────────────────────
 export const getCart             = ()  => request("/cart");
-export const addToCart           = (id) => request(`/cart/${id}`, { method: "POST" });
+export const addToCart           = (id, quantity = 1) =>
+  request(`/cart/${id}`, { method: "POST", body: JSON.stringify({ quantity }) });
+export const updateCartQuantity  = (id, quantity) =>
+  request(`/cart/${id}/quantity`, { method: "PUT", body: JSON.stringify({ quantity }) });
 export const removeFromCart      = (id) => request(`/cart/${id}`, { method: "DELETE" });
 export const clearCart           = ()  => request("/cart", { method: "DELETE" });
 export const checkCart           = (id) => request(`/cart/${id}/check`);
