@@ -44,12 +44,12 @@ const team = [
 ];
 
 const milestones = [
-  { year: "2019", title: "FALCON Founded",           desc: "Started in a small garage in Bengaluru with 3 team members and a mission to make great tech affordable." },
+  { year: "2019", title: "FELCON Founded",           desc: "Started in a small garage in Bengaluru with 3 team members and a mission to make great tech affordable." },
   { year: "2020", title: "First 1,000 Sales",         desc: "Crossed our first 1,000 orders during the pandemic — proving demand for affordable, quality refurbished devices." },
-  { year: "2021", title: "FALCON Assured Launched",  desc: "Introduced our 40-point quality certification program, setting a new standard for refurbished tech in India." },
+  { year: "2021", title: "FELCON Assured Launched",  desc: "Introduced our 40-point quality certification program, setting a new standard for refurbished tech in India." },
   { year: "2022", title: "Expanded to 50+ Cities",    desc: "Grew our logistics network to reach customers in over 50 Indian cities with 2–3 day delivery." },
   { year: "2023", title: "₹100 Cr Revenue Milestone", desc: "Hit our biggest milestone yet — ₹100 Cr in annual revenue while maintaining a 98% customer satisfaction rate." },
-  { year: "2024", title: "FALCON GOLD Membership",   desc: "Launched GOLD — our loyalty program giving members exclusive pricing, priority support, and early access." },
+  { year: "2024", title: "FELCON GOLD Membership",   desc: "Launched GOLD — our loyalty program giving members exclusive pricing, priority support, and early access." },
 ];
 
 function SectionHead({ title }) {
@@ -74,14 +74,14 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-teal-500 rounded-full" />
-            <span className="text-teal-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">About FALCON</span>
+            <span className="text-teal-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">About FELCON</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-4">
             We're on a mission to make<br />
             <span className="text-teal-400">great tech accessible</span>
           </h1>
           <p className="text-gray-400 text-xs sm:text-sm max-w-lg leading-relaxed">
-            FALCON was born from a simple belief — that everyone deserves access to premium technology without paying premium prices.
+            FELCON was born from a simple belief — that everyone deserves access to premium technology without paying premium prices.
           </p>
         </div>
       </div>
@@ -110,10 +110,10 @@ export default function AboutPage() {
                 It started in 2026 when our founders <span className="font-bold text-gray-900">Sahil</span> and <span className="font-bold text-gray-900">Ram</span> noticed something frustrating — millions of Indians wanted iPhones and Samsung flagships but couldn't justify spending ₹1 lakh+.
               </p>
               <p>
-                Meanwhile, thousands of perfectly good devices were being discarded or exported. The gap was obvious. The solution was FALCON.
+                Meanwhile, thousands of perfectly good devices were being discarded or exported. The gap was obvious. The solution was FELCON.
               </p>
               <p>
-                We built a system from scratch — sourcing pre-owned devices, putting them through a rigorous 40-point quality check, repairing what needed fixing, and certifying them under the <span className="font-bold text-teal-600">FALCON Assured</span> badge.
+                We built a system from scratch — sourcing pre-owned devices, putting them through a rigorous 40-point quality check, repairing what needed fixing, and certifying them under the <span className="font-bold text-teal-600">FELCON Assured</span> badge.
               </p>
               <p>
                 Today, we've helped over <span className="font-bold text-gray-900">2.5 lakh customers</span> across India get the devices they love at prices that make sense.
@@ -234,7 +234,7 @@ export default function AboutPage() {
             <div className="flex-1 text-center sm:text-left">
               <span className="text-teal-400 text-[10px] font-black uppercase tracking-widest">Join us</span>
               <h3 className="text-xl sm:text-2xl font-black text-white mt-1 mb-2 leading-snug">
-                Ready to experience FALCON?
+                Ready to experience FELCON?
               </h3>
               <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
                 Shop thousands of certified refurbished devices — all with 6-month warranty and 7-day returns.

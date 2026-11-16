@@ -8,15 +8,15 @@ export default function FAQ() {
     SellSmart: [
       {
         question: "What should I do if my voucher shows Already Redeemed ?",
-        answer: "If your voucher shows as already redeemed, please contact FALCON support with your voucher details. They will verify and issue a replacement if applicable.",
+        answer: "If your voucher shows as already redeemed, please contact FELCON support with your voucher details. They will verify and issue a replacement if applicable.",
       },
       {
-        question: "What documents do you need to sell old mobile phone on FALCON?",
+        question: "What documents do you need to sell old mobile phone on FELCON?",
         answer: "You typically need a valid government ID proof and address proof. These documents help verify ownership and ensure a smooth transaction.",
       },
       {
         question: "What if my pickup is delayed?",
-        answer: "If your pickup is delayed, you can reschedule through the app or website. FALCON support will also notify you of any changes.",
+        answer: "If your pickup is delayed, you can reschedule through the app or website. FELCON support will also notify you of any changes.",
       },
     ],
     SmartBuy: [
@@ -26,7 +26,7 @@ export default function FAQ() {
       },
       {
         question: "What is the Return policy?",
-        answer: "FALCON offers a return policy within a specified period. Check the product page for exact details before purchase.",
+        answer: "FELCON offers a return policy within a specified period. Check the product page for exact details before purchase.",
       },
       {
         question: "Do you have delivery in all places or only in particular locations?",
@@ -39,11 +39,11 @@ export default function FAQ() {
         answer: "Yes, you can place a new exchange order if your previous one was cancelled. Ensure your device meets the eligibility criteria.",
       },
       {
-        question: "What happens if my exchange order is cancelled by FALCON?",
-        answer: "If FALCON cancels your order, you will be notified with the reason. You can then place a new order or contact support for clarification.",
+        question: "What happens if my exchange order is cancelled by FELCON?",
+        answer: "If FELCON cancels your order, you will be notified with the reason. You can then place a new order or contact support for clarification.",
       },
       {
-        question: "Can I appeal FALCON's decision to cancel my order?",
+        question: "Can I appeal FELCON's decision to cancel my order?",
         answer: "Yes, you can appeal by contacting customer support. They will review your case and provide further assistance.",
       },
     ],
@@ -107,7 +107,7 @@ export default function FAQ() {
               Frequently Asked Questions
             </h2>
             <p style={{ fontSize: 14, color: "#123B75", opacity: 0.7, margin: 0, lineHeight: 1.6 }}>
-              Find quick answers to the most common questions about buying and selling on FALCON.
+              Find quick answers to the most common questions about buying and selling on FELCON.
             </p>
           </div>
 

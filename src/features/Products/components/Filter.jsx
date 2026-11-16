@@ -596,7 +596,7 @@ function PreviewModal({ device, onClose }) {
               className="text-[12.5px] font-bold"
               style={{ color: "#b07d0d" }}
             >
-              🛡 FALCON Assured
+              🛡 FELCON Assured
             </span>
           </div>
 
@@ -740,7 +740,7 @@ function MobileDeviceCard({ device, onPreview }) {
           style={{ backgroundColor: "#EDF4FF", borderColor: "#DCEBFF" }}
         >
           <span className="text-[9px] font-bold text-[#1D5EDB]">
-            🛡 FALCON ASSURED
+            🛡 FELCON ASSURED
           </span>
         </div>
         <img
@@ -1019,7 +1019,7 @@ function DesktopDeviceCard({ device, onPreview }) {
           style={{ backgroundColor: "#fdf6e3", borderColor: "#f0d98a" }}
         >
           <span className="text-[11px] font-bold" style={{ color: "#b07d0d" }}>
-            🛡 FALCON Assured
+            🛡 FELCON Assured
           </span>
         </div>
         {device.listedBy && (
@@ -1296,25 +1296,58 @@ function MobileSortDrawer({ open, onClose, sortBy, onSort }) {
   );
 }
 
+// ─── REFURBISHED / DEVICE CATEGORIES ──────────────────────────────────────────
+const REFURBISHED_CATEGORIES = [
+  { id: "all", label: "All" },
+  { id: "mobile", label: "Mobile Phones" },
+  { id: "laptop", label: "Laptops" },
+  { id: "tablet", label: "Tablets" },
+  { id: "smartwatch", label: "Smartwatches" },
+  { id: "television", label: "Televisions" },
+];
+
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────────
-export default function Filter({ data, category }) {
+export default function Filter({
+  data,
+  category: propCategory,
+  showCategoryTabs = false,
+  defaultDeviceType,
+}) {
   const {
     pageTitle = "Devices",
     filterConfig = [],
     devices: staticDevices = [],
     priceRange = { min: 0, max: 200000, step: 1000 },
   } = data || {};
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const urlCategory = searchParams.get("category")?.toLowerCase();
+  const effectiveCategory = showCategoryTabs
+    ? (urlCategory && urlCategory !== "all" ? urlCategory : "all")
+    : (propCategory || (urlCategory && urlCategory !== "all" ? urlCategory : undefined));
+
+  const effectiveDeviceType =
+    searchParams.get("deviceType")?.toLowerCase() ||
+    defaultDeviceType?.toLowerCase() ||
+    "";
 
   const initialFilters = () => {
     const pre = {};
     for (const [key, val] of searchParams.entries()) {
       if (!val) continue;
+      // Skip query-control params from becoming spec filters
+      if (
+        key === "category" ||
+        key === "search" ||
+        key === "sortBy" ||
+        key === "page"
+      )
+        continue;
+
       // deviceType: URL lowercase ("refurbished") → UI Title Case ("Refurbished")
       if (key === "deviceType") {
         pre[key] = [val.charAt(0).toUpperCase() + val.slice(1)];
-      }
-      if (key === "brand") {
+      } else if (key === "brand") {
         pre[key] = [val.charAt(0).toUpperCase() + val.slice(1)];
       } else {
         pre[key] = [val];
@@ -1323,7 +1356,9 @@ export default function Filter({ data, category }) {
     return pre;
   };
 
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || "",
+  );
   const [sortBy, setSortBy] = useState("newest");
   const [activeFilters, setActiveFilters] = useState(initialFilters);
 
@@ -1343,14 +1378,35 @@ export default function Filter({ data, category }) {
     }
   }, [searchParams.toString()]);
 
+  const handleCategorySelect = (catId) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (!catId || catId === "all") {
+        next.delete("category");
+      } else {
+        next.set("category", catId);
+      }
+      next.delete("page");
+      return next;
+    });
+    setPage(1);
+  };
+
   const apiFilters = useMemo(() => {
     const params = {
-      category,
       status: "available",
       sortBy,
       limit: 100,
       page,
     };
+
+    if (effectiveCategory && effectiveCategory !== "all") {
+      params.category = effectiveCategory;
+    }
+
+    if (effectiveDeviceType) {
+      params.deviceType = effectiveDeviceType;
+    }
 
     if (priceMin > priceRange.min) params.minPrice = priceMin;
     if (priceMax < priceRange.max) params.maxPrice = priceMax;
@@ -1399,7 +1455,8 @@ export default function Filter({ data, category }) {
 
     return params;
   }, [
-    category,
+    effectiveCategory,
+    effectiveDeviceType,
     sortBy,
     priceMin,
     priceMax,
@@ -1434,6 +1491,27 @@ export default function Filter({ data, category }) {
       )
         return false;
       if (d.price < priceMin || d.price > priceMax) return false;
+
+      // Filter by deviceType if effectiveDeviceType is specified (e.g. refurbished)
+      if (effectiveDeviceType) {
+        if (
+          !d.deviceType ||
+          d.deviceType.toLowerCase() !== effectiveDeviceType.toLowerCase()
+        ) {
+          return false;
+        }
+      }
+
+      // Filter by category if effectiveCategory is specified and not "all"
+      if (effectiveCategory && effectiveCategory !== "all") {
+        if (
+          !d.category ||
+          d.category.toLowerCase() !== effectiveCategory.toLowerCase()
+        ) {
+          return false;
+        }
+      }
+
       for (const [key, vals] of Object.entries(activeFilters)) {
         if (!vals.length) continue;
         if (key === "availability") {
@@ -1495,7 +1573,16 @@ export default function Filter({ data, category }) {
         return db - da;
       });
     return list;
-  }, [sourceDevices, searchQuery, priceMin, priceMax, activeFilters, sortBy]);
+  }, [
+    sourceDevices,
+    searchQuery,
+    priceMin,
+    priceMax,
+    activeFilters,
+    sortBy,
+    effectiveDeviceType,
+    effectiveCategory,
+  ]);
 
   const toggleFilter = (key, val) =>
     setActiveFilters((prev) => {
@@ -1562,7 +1649,7 @@ export default function Filter({ data, category }) {
       />
 
       {/* ── Desktop top bar ── */}
-      <div className="hidden md:flex bg-white border-b border-gray-100 px-4 lg:px-6 py-4 sticky top-0 z-20 items-center gap-3 lg:gap-4 flex-wrap shadow-sm mx-8 rounded-2xl rounded-2xl">
+      <div className="hidden md:flex bg-white border-b border-gray-100 px-4 lg:px-6 py-4 sticky top-0 z-20 items-center gap-3 lg:gap-4 flex-wrap shadow-sm mx-8 rounded-2xl">
         <BackButton />
         <div className="mr-2 flex-shrink-0">
           <h1 className="text-lg font-extrabold text-gray-900 leading-none">
@@ -1570,7 +1657,10 @@ export default function Filter({ data, category }) {
             <span style={{ color: "#0077b6" }}>.</span>
           </h1>
           <p className="text-[11px] text-gray-400 mt-0.5 capitalize">
-            {category} · Filter and find your device
+            {effectiveCategory && effectiveCategory !== "all"
+              ? effectiveCategory
+              : "All Categories"}{" "}
+            · Filter and find your device
           </p>
         </div>
         <div className="relative flex-1 max-w-sm">
@@ -1666,6 +1756,34 @@ export default function Filter({ data, category }) {
         </div>
       </div>
 
+      {/* ── Category Filter Tabs (Refurbished / Multi-Category) ── */}
+      {showCategoryTabs && (
+        <div className="max-w-screen-xl mx-auto px-3 sm:px-4 md:px-6 pt-4">
+          <div className="bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 shadow-sm flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider px-2 hidden sm:inline-block flex-shrink-0">
+              Category:
+            </span>
+            {REFURBISHED_CATEGORIES.map((cat) => {
+              const isSelected = (effectiveCategory || "all") === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 flex-shrink-0 cursor-pointer ${
+                    isSelected
+                      ? "bg-[#0077b6] text-white shadow-md shadow-[#0077b6]/25"
+                      : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-transparent"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ── Body ── */}
       <div className="max-w-screen-xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6 md:flex md:gap-6 md:items-start">
         {/* Desktop filter sidebar */}
@@ -1700,7 +1818,7 @@ export default function Filter({ data, category }) {
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Backend unreachable — showing demo data. ({error?.message})
+              Backend connection error ({error?.message}). Please check your connection.
             </div>
           )}
 
@@ -1711,7 +1829,9 @@ export default function Filter({ data, category }) {
               {pagination?.total
                 ? ` of ${pagination.total}`
                 : ` of ${sourceDevices.length}`}{" "}
-              {pageTitle.toLowerCase()} found
+              {effectiveCategory && effectiveCategory !== "all"
+                ? `refurbished ${effectiveCategory}s found`
+                : `${pageTitle.toLowerCase()} found`}
             </p>
             {activeChips.length > 0 && (
               <div className="flex flex-wrap gap-1.5 items-center">
@@ -1768,24 +1888,34 @@ export default function Filter({ data, category }) {
             <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-gray-100 shadow-sm">
               <span className="text-5xl mb-4">🔍</span>
               <p className="text-gray-800 font-bold text-base mb-1">
-                No {pageTitle.toLowerCase()} match your filters
+                No {effectiveCategory && effectiveCategory !== "all" ? `refurbished ${effectiveCategory}s` : pageTitle.toLowerCase()} match your filters
               </p>
               <p className="text-gray-400 text-sm mb-5">
                 Try relaxing or clearing your filters
               </p>
-              <button
-                onClick={resetAll}
-                className="text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-colors"
-                style={{ backgroundColor: "#0077b6" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#005f8f")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#0077b6")
-                }
-              >
-                Clear Filters
-              </button>
+              <div className="flex items-center gap-3">
+                {effectiveCategory && effectiveCategory !== "all" && (
+                  <button
+                    onClick={() => handleCategorySelect("all")}
+                    className="text-gray-700 bg-gray-100 hover:bg-gray-200 text-sm font-bold px-5 py-2.5 rounded-xl transition-colors cursor-pointer"
+                  >
+                    View All Refurbished
+                  </button>
+                )}
+                <button
+                  onClick={resetAll}
+                  className="text-white text-sm font-bold px-6 py-2.5 rounded-xl transition-colors cursor-pointer"
+                  style={{ backgroundColor: "#0077b6" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#005f8f")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#0077b6")
+                  }
+                >
+                  Clear Filters
+                </button>
+              </div>
             </div>
           ) : (
             <>

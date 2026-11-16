@@ -3,8 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate }           from "react-router-dom";
 import { useAuth }                          from "../../../hooks/useAuth";
 import ReviewCard                           from "../components/ReviewCard";
+import { buildApiUrl, BASE_URL as BASE }    from "../../../services/api.config";
 
-const BASE  = import.meta.env.VITE_API_URL || "/api";
 const token = () => localStorage.getItem("accessToken");
  
 function toggleLikeInTree(reviews, reviewId, userId) {
@@ -67,7 +67,7 @@ export default function AllReviewsPage() {
  
   // ── Load product title ──────────────────────────────────────────────────────
   useEffect(() => {
-    fetch(`${BASE}/products/${productId}`)
+    fetch(buildApiUrl(`/products/${productId}`))
       .then(r => r.json())
       .then(d => setProduct(d.data ?? d.product ?? null))
       .catch(() => {});
@@ -77,7 +77,7 @@ export default function AllReviewsPage() {
   const fetchReviews = useCallback(async (sort = sortBy) => {
     setLoading(true);
     try {
-      const res  = await fetch(`${BASE}/products/${productId}/reviews?sortBy=${sort}&limit=100`);
+      const res  = await fetch(buildApiUrl(`/products/${productId}/reviews?sortBy=${sort}&limit=100`));
       const data = await res.json();
       setSummary(data.summary ?? null);
       setReviews(data.data    ?? []);
@@ -101,7 +101,7 @@ export default function AllReviewsPage() {
         mediaImages.forEach(f => fd.append("images", f));
         if (mediaVideo) fd.append("video", mediaVideo);
       }
-      const res  = await fetch(`${BASE}/products/${productId}/reviews`, {
+      const res  = await fetch(buildApiUrl(`/products/${productId}/reviews`), {
         method:  "POST",
         headers: { Authorization: `Bearer ${token()}` },
         body:    fd,
@@ -130,7 +130,7 @@ export default function AllReviewsPage() {
     if (!replyText.trim()) return;
     try {
       const res = await fetch(
-        `${BASE}/products/${productId}/reviews/${replyTo.reviewId}/reply`,
+        buildApiUrl(`/products/${productId}/reviews/${replyTo.reviewId}/reply`),
         { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
           body: JSON.stringify({ comment: replyText }) }
       );
@@ -150,7 +150,7 @@ export default function AllReviewsPage() {
   const handleLike = useCallback(async (reviewId) => {
     if (!isAuthenticated || !user?._id) return;
     setReviews(prev => toggleLikeInTree(prev, reviewId, user._id));
-    fetch(`${BASE}/products/${productId}/reviews/${reviewId}/like`, {
+    fetch(buildApiUrl(`/products/${productId}/reviews/${reviewId}/like`), {
       method: "POST", headers: { Authorization: `Bearer ${token()}` },
     }).catch(() => fetchReviews());
   }, [isAuthenticated, user?._id, productId]);
@@ -159,7 +159,7 @@ export default function AllReviewsPage() {
   const handleDelete = useCallback(async (reviewId) => {
     if (!window.confirm("Delete this review permanently?")) return;
     try {
-      const res = await fetch(`${BASE}/products/${productId}/reviews/${reviewId}`, {
+      const res = await fetch(buildApiUrl(`/products/${productId}/reviews/${reviewId}`), {
         method: "DELETE", headers: { Authorization: `Bearer ${token()}` },
       });
       if (!res.ok) { const d = await res.json(); alert(d.message); return; }

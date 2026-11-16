@@ -135,11 +135,11 @@ export default function Login() {
           <div className="w-full flex items-center gap-2 z-10">
             <img
               src="/logo.png"
-              alt="FALCON"
+              alt="FELCON"
               className="w-9 h-9 object-contain rounded-xl shadow-sm"
             />
             <span className="text-white font-black text-base tracking-wider">
-              FALCON
+              FELCON
             </span>
           </div>
 
@@ -148,7 +148,7 @@ export default function Login() {
             <h3 className="text-white text-xl font-bold text-center leading-snug mb-2">
               Welcome to
               <br />
-              FALCON
+              FELCON
             </h3>
             <p className="text-gray-400 text-xs text-center leading-relaxed max-w-[220px]">
               {pendingCart
@@ -230,7 +230,7 @@ export default function Login() {
               </span>
             </div>
             <h2 className="text-2xl font-black text-gray-900 tracking-tight leading-tight mb-1">
-              Sign in to FALCON
+              Sign in to FELCON
             </h2>
             <p className="text-xs text-gray-400">
               Select your preferred login method below
@@ -474,7 +474,7 @@ export default function Login() {
 
           {/* Terms */}
           <p className="text-[11px] text-gray-400 text-center mt-4">
-            By continuing, you agree to FALCON's{" "}
+            By continuing, you agree to FELCON's{" "}
             <span className="text-gray-600 font-semibold underline cursor-pointer">
               Terms
             </span>{" "}

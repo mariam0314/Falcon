@@ -141,18 +141,18 @@ export default function Signup() {
           <div className="w-full flex items-center gap-2 z-10">
             <img
               src="/logo.png"
-              alt="FALCON"
+              alt="FELCON"
               className="w-9 h-9 object-contain rounded-xl shadow-sm"
             />
             <span className="text-white font-black text-base tracking-wider">
-              FALCON
+              FELCON
             </span>
           </div>
 
           {/* Center text */}
           <div className="flex flex-col items-center z-10">
             <h3 className="text-white text-xl font-bold text-center leading-snug mb-2">
-              Join FALCON
+              Join FELCON
               <br />
               today
             </h3>
@@ -165,7 +165,7 @@ export default function Signup() {
           <div className="flex flex-col gap-2 w-full z-10">
             {[
               { icon: "🔒", label: "100% Secure Signup" },
-              { icon: "✅", label: "FALCON Assured Quality" },
+              { icon: "✅", label: "FELCON Assured Quality" },
               { icon: "🔄", label: "6 Month Warranty" },
             ].map((item) => (
               <div
@@ -227,7 +227,7 @@ export default function Signup() {
           {/* Heading */}
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign up</h2>
           <p className="text-sm text-gray-400 mb-5">
-            Create your FALCON account
+            Create your FELCON account
           </p>
 
           {/* ── Google Sign-Up ── */}

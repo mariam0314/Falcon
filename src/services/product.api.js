@@ -1,21 +1,16 @@
-const BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  import.meta.env.VITE_API_URI ||
-  (import.meta.env.VITE_URL ? `${import.meta.env.VITE_URL.replace(/\/api\/?$/, "")}/api` : null) ||
-  "/api";
+import { buildApiUrl, BASE_URL } from "./api.config";
 
 // ─── JSON request (for non-file endpoints) ────────────────────────────────────
 const request = async (endpoint, options = {}) => {
   const token = localStorage.getItem("accessToken");
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  const res = await fetch(buildApiUrl(endpoint), {
     headers: {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
     },
     ...options,
   });
-
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Something went wrong");
@@ -27,7 +22,7 @@ const request = async (endpoint, options = {}) => {
 const multipartRequest = async (endpoint, formData, method = "POST") => {
   const token = localStorage.getItem("accessToken");
 
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  const res = await fetch(buildApiUrl(endpoint), {
     method,
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),

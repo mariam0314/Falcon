@@ -6,7 +6,7 @@ const posts = [
     category: "Buying Guide",
     tag: "HOT",
     title: "Why Refurbished iPhones Are the Smartest Buy in 2025",
-    excerpt: "With prices of new flagships crossing ₹1.5L, refurbished iPhones certified by FALCON deliver 90% of the experience at 40% of the cost. Here's everything you need to know.",
+    excerpt: "With prices of new flagships crossing ₹1.5L, refurbished iPhones certified by FELCON deliver 90% of the experience at 40% of the cost. Here's everything you need to know.",
     author: "Aryan Mehta",
     date: "Mar 15, 2025",
     readTime: "5 min read",
@@ -30,7 +30,7 @@ const posts = [
     category: "Comparison",
     tag: "POPULAR",
     title: "Samsung Galaxy S24 vs S23 — Which Refurbished Deal Wins?",
-    excerpt: "Both are available at FALCON at amazing prices. But is the newer S24 worth the premium? We put them head to head across camera, battery and performance.",
+    excerpt: "Both are available at FELCON at amazing prices. But is the newer S24 worth the premium? We put them head to head across camera, battery and performance.",
     author: "Rahul Singh",
     date: "Mar 5, 2025",
     readTime: "6 min read",
@@ -42,7 +42,7 @@ const posts = [
     category: "Sustainability",
     tag: "NEW",
     title: "How Buying Refurbished Saves the Planet — One Phone at a Time",
-    excerpt: "Manufacturing a new smartphone produces 70kg of CO₂. Choosing refurbished cuts that by 80%. FALCON is proud to be part of India's circular economy movement.",
+    excerpt: "Manufacturing a new smartphone produces 70kg of CO₂. Choosing refurbished cuts that by 80%. FELCON is proud to be part of India's circular economy movement.",
     author: "Priya Nair",
     date: "Feb 28, 2025",
     readTime: "3 min read",
@@ -54,7 +54,7 @@ const posts = [
     category: "Buying Guide",
     tag: null,
     title: "Best Refurbished Laptops Under ₹40,000 in 2025",
-    excerpt: "From MacBook Air M1 to ThinkPad X1 Carbon — our experts have handpicked the best value certified laptops available on FALCON right now.",
+    excerpt: "From MacBook Air M1 to ThinkPad X1 Carbon — our experts have handpicked the best value certified laptops available on FELCON right now.",
     author: "Aryan Mehta",
     date: "Feb 20, 2025",
     readTime: "7 min read",
@@ -109,7 +109,7 @@ export default function Blog() {
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-teal-500 rounded-full" />
-            <span className="text-teal-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">FALCON Blog</span>
+            <span className="text-teal-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">FELCON Blog</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-3">

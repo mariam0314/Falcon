@@ -1,10 +1,5 @@
 import { useState } from "react";
-
-const BASE_URL =
-  import.meta.env.VITE_URL ||
-  (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "") : null) ||
-  (import.meta.env.VITE_API_URI ? import.meta.env.VITE_API_URI.replace(/\/api\/?$/, "") : null) ||
-  window.location.origin;
+import { buildApiUrl } from "../services/api.config";
 
 export default function useLocationDetector() {
   const [state, setState] = useState({
@@ -44,7 +39,7 @@ export default function useLocationDetector() {
     // 2. Reverse geocode
     setState((s) => ({ ...s, coords, phase: "geocoding" }));
     try {
-      const res = await fetch(`${BASE_URL}/api/location/reverse-geocode`, {
+      const res = await fetch(buildApiUrl("/location/reverse-geocode"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(coords),
@@ -66,7 +61,7 @@ export default function useLocationDetector() {
 
     setState((s) => ({ ...s, phase: "saving", error: null }));
     try {
-      const res = await fetch(`${BASE_URL}/api/location/save-as-address`, {
+      const res = await fetch(buildApiUrl("/location/save-as-address"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

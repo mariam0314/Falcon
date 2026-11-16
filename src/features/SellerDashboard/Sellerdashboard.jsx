@@ -25,9 +25,7 @@ import {
 } from "../../services/deviceSell.api";
 import ProposeSlotModal from "../User-Sell/components/ProposeSlotModal";
 import Rejectmodal from "./Rejectmodal";
-
-// ─── App config ───────────────────────────────────────────────────────────────
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+import { buildApiUrl, SOCKET_URL } from "../../services/api.config";
 
 const PLAN_CONFIG = {
   basic: {
@@ -615,7 +613,7 @@ const SubscriptionRow = memo(({ planKey, onOpenChat, unreadCount = 0, isSuperSel
       </div>
       <div className="flex items-center gap-1.5 flex-shrink-0">
         {!isSuperSeller && cfg.supportTypes.includes("email") && (
-          <a href="mailto:support@falcon.in" className="flex items-center gap-1 text-xs font-semibold text-[#1132d4] border border-[#1132d4]/30 bg-white hover:bg-[#1132d4] hover:text-white px-2.5 py-1.5 rounded-lg transition-all"><MailIcon /> Email</a>
+          <a href="mailto:Felconsolutionsindia@gmail.com" className="flex items-center gap-1 text-xs font-semibold text-[#1132d4] border border-[#1132d4]/30 bg-white hover:bg-[#1132d4] hover:text-white px-2.5 py-1.5 rounded-lg transition-all"><MailIcon /> Email</a>
         )}
         {!isSuperSeller && cfg.supportTypes.includes("call") && (
           <a href="tel:+918000000000" className="flex items-center gap-1 text-xs font-semibold text-emerald-700 border border-emerald-200 bg-white hover:bg-emerald-600 hover:text-white px-2.5 py-1.5 rounded-lg transition-all"><CallIcon /> Call</a>
@@ -723,7 +721,7 @@ const ChatModal = ({ onClose, sellerName, sellerId, adminId }) => {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center"><span className="text-white text-sm font-bold">A</span></div>
             <div>
-              <p className="text-white font-extrabold text-sm">FALCON Admin Support</p>
+              <p className="text-white font-extrabold text-sm">FELCON Admin Support</p>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                 <p className="text-blue-200 text-xs">{isTyping ? "Admin is typing…" : "Support Chat"}</p>
@@ -747,7 +745,7 @@ const ChatModal = ({ onClose, sellerName, sellerId, adminId }) => {
             <div className="flex flex-col items-center justify-center h-full gap-2 text-center px-6">
               <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center mb-1 text-[#1132d4]"><ChatIcon /></div>
               <p className="text-sm font-semibold text-slate-700">Start a conversation</p>
-              <p className="text-xs text-slate-400">Send a message to the FALCON admin support team</p>
+              <p className="text-xs text-slate-400">Send a message to the FELCON admin support team</p>
             </div>
           ) : messages.map((msg, i) => {
             const own = isOwnMessage(msg);
@@ -795,7 +793,7 @@ const ChatModal = ({ onClose, sellerName, sellerId, adminId }) => {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
             </button>
             <input ref={imgInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
-            <textarea ref={inputRef} rows={1} value={input} onChange={handleInputChange} onKeyDown={handleKey} placeholder="Message FALCON support…"
+            <textarea ref={inputRef} rows={1} value={input} onChange={handleInputChange} onKeyDown={handleKey} placeholder="Message FELCON support…"
               className="flex-1 bg-transparent text-sm text-slate-700 placeholder-slate-400 outline-none resize-none leading-relaxed py-0.5" style={{ maxHeight: "80px" }} />
             <button onClick={handleSend} disabled={(!input.trim() && !imgFile) || sending}
               className="flex-shrink-0 w-8 h-8 rounded-xl bg-[#1132d4] disabled:bg-slate-200 text-white disabled:text-slate-400 flex items-center justify-center transition-all hover:bg-[#0d28b8] active:scale-95 shadow-sm">
@@ -1313,8 +1311,7 @@ export default function SellerDashboard() {
     fetchUserListings(); fetchMySubscription();
     const envAdminId = import.meta.env.VITE_ADMIN_ID;
     if (envAdminId) { setAdminId(envAdminId); return; }
-    const base = import.meta.env.VITE_API_URL || "/api";
-    fetch(`${base}/users/admin`, { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } })
+    fetch(buildApiUrl("/users/admin"), { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } })
       .then((r) => r.json()).then((d) => { if (d?.data?._id) setAdminId(d.data._id); }).catch(() => {});
   }, [fetchUserListings, fetchMySubscription]);
 

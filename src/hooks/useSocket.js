@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+import { SOCKET_URL } from "../services/api.config";
 
 // Module-level singleton — ek hi socket instance
 let globalSocket = null;

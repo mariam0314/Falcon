@@ -6,8 +6,8 @@ export default function Info() {
   return (
     <>
     <Helmet>
-            <title>Sell & Buy Phones - FALCON</title>
-            <meta name="description" content="Sell your old phone instantly on FALCON..." />
+            <title>Sell & Buy Phones - FELCON</title>
+            <meta name="description" content="Sell your old phone instantly on FELCON..." />
           </Helmet>
     <section className="bg-gradient-to-b from-[#F4F8FF] to-white py-12 md:py-16 text-[#123B75] border-t border-[#DCEBFF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6">
@@ -15,14 +15,14 @@ export default function Info() {
         {/* Intro */}
         <div className="mb-8 md:mb-10">
           <h2 className="text-2xl sm:text-3xl font-black mb-3 md:mb-4 text-[#123B75]">
-            Sell Your Old Phone & Buy Certified Electronics with FALCON
+            Sell Your Old Phone & Buy Certified Electronics with FELCON
           </h2>
           <p className="mb-3 md:mb-4 text-sm sm:text-base text-[#123B75]/80 leading-relaxed">
-            FALCON is India's next-generation platform for selling pre-owned devices and buying certified refurbished gadgets. 
+            FELCON is India's next-generation platform for selling pre-owned devices and buying certified refurbished gadgets. 
             Enjoy AI-driven valuations, guaranteed doorstep pickups, and lightning-fast direct bank transfers.
           </p>
           <p className="text-sm sm:text-base text-[#123B75]/80 leading-relaxed">
-            When you sell your phone on FALCON, every device undergoes our comprehensive 32-point inspection check, ensuring safe recycling and premium reconditioning for second-life buyers.
+            When you sell your phone on FELCON, every device undergoes our comprehensive 32-point inspection check, ensuring safe recycling and premium reconditioning for second-life buyers.
           </p>
         </div>
 
@@ -30,7 +30,7 @@ export default function Info() {
         <div className="mb-6 md:mb-8">
           <h3 className="text-xl font-semibold mb-2 md:mb-3">Sell Your Old Phone</h3>
           <p className="mb-3 md:mb-4">
-            Ready to sell old mobile phone? With FALCON, you can easily get cash for your old mobile phone without leaving home. 
+            Ready to sell old mobile phone? With FELCON, you can easily get cash for your old mobile phone without leaving home. 
             Just share your phone’s details, and we’ll offer you the best price. It’s that simple:
           </p>
           <ul className="list-disc list-inside space-y-1 md:space-y-2">
@@ -49,11 +49,11 @@ export default function Info() {
         {/* Brands */}
         <div className="mb-6 md:mb-8">
           <h3 className="text-xl font-semibold mb-2 md:mb-3">
-            Which Mobile Phone Brands Can Be Sold and Bought On FALCON?
+            Which Mobile Phone Brands Can Be Sold and Bought On FELCON?
           </h3>
           <p className="mb-3 md:mb-4">
             You can buy or sell almost all mobile phone brands in India. Popular laptops, tablets, and gaming consoles are also available. 
-            FALCON has more than 20 phone brands, and for every device you sell we offer:
+            FELCON has more than 20 phone brands, and for every device you sell we offer:
           </p>
           <ul className="list-disc list-inside space-y-1 md:space-y-2">
             <li>Assured sale at best price</li>
@@ -67,8 +67,8 @@ export default function Info() {
         <div className="mb-6 md:mb-8">
           <h3 className="text-xl font-semibold mb-2 md:mb-3">Buy Old Mobile Phones</h3>
           <p className="mb-3 md:mb-4">
-            FALCON offers an affordable way to upgrade to a new phone. You can explore the vast selection of refurbished phones at low price. 
-            With FALCON, you can be assured that you will get a highly functional phone. All refurbished phones are tested with proper quality checks to maintain the quality. 
+            FELCON offers an affordable way to upgrade to a new phone. You can explore the vast selection of refurbished phones at low price. 
+            With FELCON, you can be assured that you will get a highly functional phone. All refurbished phones are tested with proper quality checks to maintain the quality. 
             On top of that, you get:
           </p>
           <ul className="list-disc list-inside space-y-1 md:space-y-2">
@@ -84,9 +84,9 @@ export default function Info() {
 
         {/* How to Buy */}
         <div className="mb-6 md:mb-8">
-          <h3 className="text-xl font-semibold mb-2 md:mb-3">How to Buy Old Phone From FALCON</h3>
+          <h3 className="text-xl font-semibold mb-2 md:mb-3">How to Buy Old Phone From FELCON</h3>
           <p className="mb-3 md:mb-4">
-            Buying old mobile phone from FALCON is very easy and convenient. Just follow these steps:
+            Buying old mobile phone from FELCON is very easy and convenient. Just follow these steps:
           </p>
           <ul className="list-disc list-inside space-y-1 md:space-y-2">
             <li>Visit the website or App</li>
@@ -96,14 +96,14 @@ export default function Info() {
             <li>Make the payment and your device will be delivered to your doorstep.</li>
           </ul>
           <p className="mt-3 md:mt-4">
-            With FALCON, your privacy is safe. We carefully clean every old phone to ensure that all your data is removed and secured.
+            With FELCON, your privacy is safe. We carefully clean every old phone to ensure that all your data is removed and secured.
           </p>
         </div>
 
         {/* Closing */}
         <div>
           <p>
-            You don’t need to worry about your old phone’s brand when selling or buying through FALCON. 
+            You don’t need to worry about your old phone’s brand when selling or buying through FELCON. 
             We accept phones from most brands, so selling is easy. Pick the phone category, brand, and model you want to sell. 
             You can also choose your brand from the quick links below.
           </p>

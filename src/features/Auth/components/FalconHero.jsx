@@ -82,7 +82,7 @@ export default function FalconHero() {
 
           {/* Description */}
           <p className="text-base sm:text-lg text-[#123B75]/80 max-w-xl font-normal leading-relaxed mb-8">
-            Explore premium electronics, discover smarter deals and find your next device with FALCON.
+            Explore premium electronics, discover smarter deals and find your next device with FELCON.
           </p>
 
           {/* Buttons */}

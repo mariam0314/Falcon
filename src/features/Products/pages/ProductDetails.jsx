@@ -539,6 +539,7 @@ export default function ProductDetails() {
         quantity: 1,
         returnUrl,
       };
+      sessionStorage.setItem("felcon_pending_cart", JSON.stringify(pendingCart));
       sessionStorage.setItem("falcon_pending_cart", JSON.stringify(pendingCart));
       navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, {
         state: {
@@ -717,7 +718,7 @@ export default function ProductDetails() {
                   )}
                 </div>
 
-                {/* FALCON assured */}
+                {/* FELCON assured */}
                 <div
                   className="mt-4 flex items-center gap-3 rounded-2xl px-4 py-3"
                   style={{
@@ -736,7 +737,7 @@ export default function ProductDetails() {
                       className="text-xs font-bold"
                       style={{ color: "#0077b6" }}
                     >
-                      FALCON Assured
+                      FELCON Assured
                     </p>
                     <p className="text-xs text-slate-500">
                       Quality tested · 6-month warranty

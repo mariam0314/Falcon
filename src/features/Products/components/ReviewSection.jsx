@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ReviewCard from "./ReviewCard";
+import { buildApiUrl, BASE_URL as BASE } from "../../../services/api.config";
 
-const BASE = import.meta.env.VITE_API_URL || "/api";
 const token = () => localStorage.getItem("accessToken");
 
 const PREVIEW_COUNT = 3; // reviews shown before "View all"
@@ -133,7 +133,7 @@ export default function ReviewSection({
       setLoading(true);
       try {
         const res = await fetch(
-          `${BASE}/products/${productId}/reviews?sortBy=${sort}&limit=50`,
+          buildApiUrl(`/products/${productId}/reviews?sortBy=${sort}&limit=50`),
         );
         const data = await res.json();
         setSummary(data.summary ?? null);
@@ -177,7 +177,7 @@ export default function ReviewSection({
         if (mediaVideo) fd.append("video", mediaVideo);
       }
 
-      const res = await fetch(`${BASE}/products/${productId}/reviews`, {
+      const res = await fetch(buildApiUrl(`/products/${productId}/reviews`), {
         method: "POST",
         headers: { Authorization: `Bearer ${token()}` }, // NO Content-Type — browser sets multipart boundary
         body: fd,
@@ -235,7 +235,7 @@ export default function ReviewSection({
     if (!replyText.trim()) return;
     try {
       const res = await fetch(
-        `${BASE}/products/${productId}/reviews/${replyTo.reviewId}/reply`,
+        buildApiUrl(`/products/${productId}/reviews/${replyTo.reviewId}/reply`),
         {
           method: "POST",
           headers: {
@@ -272,7 +272,7 @@ export default function ReviewSection({
     async (reviewId) => {
       if (!isAuthenticated || !user?._id) return;
       setReviews((prev) => toggleLikeInTree(prev, reviewId, user._id));
-      fetch(`${BASE}/products/${productId}/reviews/${reviewId}/like`, {
+      fetch(buildApiUrl(`/products/${productId}/reviews/${reviewId}/like`), {
         method: "POST",
         headers: { Authorization: `Bearer ${token()}` },
       }).catch(() => fetchReviews());
@@ -286,7 +286,7 @@ export default function ReviewSection({
       if (!window.confirm("Delete this review permanently?")) return;
       try {
         const res = await fetch(
-          `${BASE}/products/${productId}/reviews/${reviewId}`,
+          buildApiUrl(`/products/${productId}/reviews/${reviewId}`),
           {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token()}` },

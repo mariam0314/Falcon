@@ -367,7 +367,7 @@ export default function SellCard({
             <div className="phone-card">
               <LazyImage
                 src="/products/iphone-15-pro-max.png"
-                alt="Sell your phone on FALCON"
+                alt="Sell your phone on FELCON"
                 fallback="/products/fallback-mobile.png"
               />
 

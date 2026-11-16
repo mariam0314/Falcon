@@ -413,7 +413,7 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
       {/* Security note */}
       <div className="flex items-center gap-2.5 text-xs text-slate-500 bg-[#e8f4fd] rounded-xl px-4 py-3">
         <Ic d={I.shield} className="w-4 h-4 text-[#0077b6] flex-shrink-0" />
-        Demo secure checkout with FALCON protection guarantee.
+        Secure checkout with FELCON protection guarantee.
       </div>
 
       <button
@@ -487,7 +487,7 @@ export default function CartPage() {
           Order Placed Successfully!
         </h2>
         <p className="text-slate-500 text-sm text-center max-w-xs">
-          Your order has been recorded. Thank you for using FALCON.
+          Your order has been recorded. Thank you for using FELCON.
         </p>
         <div className="flex gap-3">
           <button

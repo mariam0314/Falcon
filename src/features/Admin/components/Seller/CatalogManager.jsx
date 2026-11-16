@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { buildApiUrl, BASE_URL } from "../../../../services/api.config";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "/api";
 const CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch", "television"];
 const token = () => localStorage.getItem("accessToken");
 const BLUE = "#1132d4";
 
 async function apiFetch(path, opts = {}) {
   const { headers: extraHeaders, ...restOpts } = opts;
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(buildApiUrl(path), {
     ...restOpts,
     headers: { Authorization: `Bearer ${token()}`, ...extraHeaders },
   });
@@ -17,7 +17,7 @@ async function apiFetch(path, opts = {}) {
 }
 
 async function apiMultipart(path, fd) {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(buildApiUrl(path), {
     method: "POST",
     headers: { Authorization: `Bearer ${token()}` },
     body: fd,

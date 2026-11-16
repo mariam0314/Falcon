@@ -7,8 +7,7 @@ import { PiCrown } from "react-icons/pi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import NavMenu from "./NavMenu";
 import toast from "react-hot-toast";
-
-const BASE_URL = import.meta.env.VITE_URL || window.location.origin;
+import { buildApiUrl } from "../../../services/api.config";
 
 function getCurrentLocation() {
   return new Promise((resolve, reject) => {
@@ -37,7 +36,7 @@ function getCurrentLocation() {
 }
 
 async function reverseGeocode(latitude, longitude) {
-  const res = await fetch(`${BASE_URL}/api/location/reverse-geocode`, {
+  const res = await fetch(buildApiUrl("/location/reverse-geocode"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ latitude, longitude }),
@@ -64,7 +63,7 @@ async function saveDetectedAddress(latitude, longitude, geocoded) {
     ? geocoded.full
     : parts.join(", ") || `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
 
-  const res = await fetch(`${BASE_URL}/api/location/save-as-address`, {
+  const res = await fetch(buildApiUrl("/location/save-as-address"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -476,6 +475,8 @@ export default function NavBar() {
     "/tablets",
     "/smartwatches",
     "/televisions",
+    "/products",
+    "/refurbished",
   ];
   const isFilterPage = filterRoutes.some((route) =>
     location.pathname.startsWith(route)
@@ -538,10 +539,10 @@ export default function NavBar() {
             <div className="flex items-center space-x-2 flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
               <img
                 src="/nav-logo.png"
-                alt="FALCON Logo"
+                alt="FELCON Logo"
                 className="h-8 sm:h-10 w-auto object-contain rounded-lg"
               />
-              <span className="font-black text-xl tracking-tight text-[#0077b6] hidden xs:inline-block">FALCON</span>
+              <span className="font-black text-xl tracking-tight text-[#0077b6] hidden xs:inline-block">FELCON</span>
             </div>
 
           {/* Search bar — desktop only, hidden for admins */}

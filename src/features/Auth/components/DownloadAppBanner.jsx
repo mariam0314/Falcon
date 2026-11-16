@@ -16,7 +16,7 @@ export default function DownloadAppBanner() {
           </div>
 
           <h2 className="text-3xl md:text-4xl font-black mb-3 leading-tight tracking-tight">
-            Download the FALCON App
+            Download the FELCON App
           </h2>
 
           <p className="text-sm md:text-base text-white/85 mb-6 max-w-lg leading-relaxed">
@@ -26,7 +26,7 @@ export default function DownloadAppBanner() {
           <div className="flex flex-wrap gap-4 justify-center lg:justify-start items-center">
             {/* Google Play Button */}
             <a
-              href="https://play.google.com/store/apps/details?id=com.falcon.marketplace"
+              href="https://play.google.com/store/apps/details?id=com.felcon.marketplace"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/95 text-[#123B75] font-bold text-xs sm:text-sm shadow-md hover:bg-white hover:scale-105 transition-all"
@@ -40,7 +40,7 @@ export default function DownloadAppBanner() {
 
             {/* App Store Button */}
             <a
-              href="https://apps.apple.com/in/app/falcon/id123456789"
+              href="https://apps.apple.com/in/app/felcon/id123456789"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-white/95 text-[#123B75] font-bold text-xs sm:text-sm shadow-md hover:bg-white hover:scale-105 transition-all"
@@ -67,11 +67,11 @@ export default function DownloadAppBanner() {
                 <div className="w-16 h-16 rounded-2xl p-2 bg-[#F4F8FF] border border-[#DCEBFF] shadow-md flex items-center justify-center mb-2">
                   <img
                     src="/logo.png"
-                    alt="FALCON App"
+                    alt="FELCON App"
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <h4 className="text-sm font-black text-[#123B75]">FALCON</h4>
+                <h4 className="text-sm font-black text-[#123B75]">FELCON</h4>
                 <p className="text-[10px] font-bold text-[#3478F6]">BUY SMART. SELL BETTER.</p>
               </div>
               <div className="w-full py-2 rounded-xl bg-gradient-to-r from-[#1D5EDB] to-[#3478F6] text-white text-[11px] font-bold text-center shadow-md">

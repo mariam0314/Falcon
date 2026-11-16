@@ -7,7 +7,7 @@ export default function FalconIntro({ onComplete }) {
 
   useEffect(() => {
     // Check if user already saw intro this session
-    const seen = sessionStorage.getItem("falcon_intro_seen");
+    const seen = sessionStorage.getItem("felcon_intro_seen") || sessionStorage.getItem("falcon_intro_seen");
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (seen || prefersReducedMotion) {
@@ -38,7 +38,7 @@ export default function FalconIntro({ onComplete }) {
         // Finished fill
         setStage(3); // Fade out intro
         setTimeout(() => {
-          sessionStorage.setItem("falcon_intro_seen", "true");
+          sessionStorage.setItem("felcon_intro_seen", "true");
           setVisible(false);
           if (onComplete) onComplete();
         }, 550);
@@ -58,7 +58,7 @@ export default function FalconIntro({ onComplete }) {
   }, [onComplete]);
 
   const handleSkip = () => {
-    sessionStorage.setItem("falcon_intro_seen", "true");
+    sessionStorage.setItem("felcon_intro_seen", "true");
     setVisible(false);
     if (onComplete) onComplete();
   };
@@ -68,7 +68,7 @@ export default function FalconIntro({ onComplete }) {
   return (
     <div
       role="dialog"
-      aria-label="FALCON Brand Introduction"
+      aria-label="FELCON Brand Introduction"
       className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center select-none transition-all duration-500 ease-out ${
         stage === 3 ? "opacity-0 scale-[1.03] pointer-events-none" : "opacity-100 scale-100"
       }`}
@@ -116,7 +116,7 @@ export default function FalconIntro({ onComplete }) {
           >
             <img
               src="/logo.png"
-              alt="FALCON Logo"
+              alt="FELCON Logo"
               className="w-full h-full object-contain filter drop-shadow-[0_4px_12px_rgba(52,120,246,0.25)]"
             />
           </div>
@@ -134,7 +134,7 @@ export default function FalconIntro({ onComplete }) {
             letterSpacing: "0.15em",
           }}
         >
-          FALCON
+          FELCON
         </h1>
 
         {/* Tagline */}

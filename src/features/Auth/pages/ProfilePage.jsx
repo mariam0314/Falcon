@@ -17,6 +17,7 @@ import {
 } from "../../../services/profile.api";
 import { getMyListings, cancelListing } from "../../../services/deviceSell.api";
 import PickupConfirmModal from "../../User-Sell/components/PickupConfirmModal";
+import { buildApiUrl, BASE_URL } from "../../../services/api.config";
 
 // ─── tiny icon helper ─────────────────────────────────────────────────────────
 const Ic = ({ d, className = "w-4 h-4" }) => (
@@ -186,8 +187,6 @@ const ADDR_EMPTY = {
   isDefault: false,
 };
 
-const BASE_URL_ADDR = import.meta.env.VITE_URL || window.location.origin;
-
 const AddressModal = ({ initial, onSave, onClose, saving }) => {
   const [form, setForm] = useState(initial ?? ADDR_EMPTY);
   const [detecting, setDetecting] = useState(false);
@@ -225,7 +224,7 @@ const AddressModal = ({ initial, onSave, onClose, saving }) => {
         );
       });
 
-      const res = await fetch(`${BASE_URL_ADDR}/api/location/reverse-geocode`, {
+      const res = await fetch(buildApiUrl("/location/reverse-geocode"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ latitude, longitude }),
@@ -1634,7 +1633,6 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
   const [cancelError, setCancelError] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "/api";
   const token = localStorage.getItem("accessToken");
 
   const cfg = ORDER_STATUS[order.status] ?? ORDER_STATUS.pending;
@@ -1649,7 +1647,7 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
     setCancelling(true);
     setCancelError("");
     try {
-      const res = await fetch(`${BASE_URL}/orders/${order._id}/cancel`, {
+      const res = await fetch(buildApiUrl(`/orders/${order._id}/cancel`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -2032,12 +2030,11 @@ function OrdersPanel() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null); // order detail modal
 
-  const BASE_URL = import.meta.env.VITE_API_URL || "/api";
   const token = localStorage.getItem("accessToken");
 
   const loadOrders = () => {
     setLoading(true);
-    fetch(`${BASE_URL}/orders/my`, {
+    fetch(buildApiUrl("/orders/my"), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())

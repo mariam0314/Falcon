@@ -16,6 +16,8 @@ import {
   TabletsPage,
   SmartwatchPage,
   TVPage,
+  RefurbishedPage,
+  ProductsPage,
 } from "./features/Products/pages/Devicepages";
 import SellPhones from "./features/User-Sell/pages/SellPhones";
 import SellTablets from "./features/User-Sell/pages/SellTablets";
@@ -281,6 +283,22 @@ export default function App() {
                     <Route
                       path="/buy-gadgets"
                       element={<Navigate to="/phones" replace />}
+                    />
+                    <Route
+                      path="/products"
+                      element={
+                        <MainLayout>
+                          <ProductsPage />
+                        </MainLayout>
+                      }
+                    />
+                    <Route
+                      path="/refurbished"
+                      element={
+                        <MainLayout>
+                          <RefurbishedPage />
+                        </MainLayout>
+                      }
                     />
                     <Route
                       path="/phones"

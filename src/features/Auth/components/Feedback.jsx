@@ -6,14 +6,14 @@ export default function Feedback() {
 
   const metrics = [
     { label: "₹13,052+ Cr. Instant Payouts", desc: "Transferred securely to user bank accounts" },
-    { label: "193+ Lac Gadgets Encashed", desc: "Certified and traded through FALCON" },
+    { label: "193+ Lac Gadgets Encashed", desc: "Certified and traded through FELCON" },
   ];
 
   const feedback = [
-    { name: "Karan Sharma", location: "Delhi NCR", text: "Well trained staff. Overall a positive experience in selling my phone at FALCON." },
+    { name: "Karan Sharma", location: "Delhi NCR", text: "Well trained staff. Overall a positive experience in selling my phone at FELCON." },
     { name: "Abhiyash", location: "New Delhi", text: "No complaints, sold my phone very easily here. Definitely worth a try." },
     { name: "Vinit Kumar", location: "New Delhi", text: "Payment was very instant and the whole process was quick. Will recommend it." },
-    { name: "Satheesh Kumaram", location: "Bengaluru", text: "It was a wonderful experience with FALCON. I got a reasonable price and their response was very quick!" },
+    { name: "Satheesh Kumaram", location: "Bengaluru", text: "It was a wonderful experience with FELCON. I got a reasonable price and their response was very quick!" },
   ];
 
   const next = () => { if (mobileIndex < feedback.length - 1) setMobileIndex(mobileIndex + 1); };

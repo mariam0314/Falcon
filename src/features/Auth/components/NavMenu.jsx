@@ -73,15 +73,17 @@ export default function NavMenu({
     },
     {
       title: "Buy Refurbished Devices",
+      route: "/products?deviceType=refurbished",
       subItems: [
-        { label: "Mobiles", route: "/phones?deviceType=refurbished" },
-        { label: "Laptops", route: "/laptops?deviceType=refurbished" },
-        { label: "Tablets", route: "/tablets?deviceType=refurbished" },
+        { label: "All Refurbished", route: "/products?deviceType=refurbished" },
+        { label: "Mobiles", route: "/products?deviceType=refurbished&category=mobile" },
+        { label: "Laptops", route: "/products?deviceType=refurbished&category=laptop" },
+        { label: "Tablets", route: "/products?deviceType=refurbished&category=tablet" },
         {
           label: "SmartWatches",
-          route: "/smartwatches?deviceType=refurbished",
+          route: "/products?deviceType=refurbished&category=smartwatch",
         },
-        { label: "Television", route: "/televisions?deviceType=refurbished" },
+        { label: "Television", route: "/products?deviceType=refurbished&category=television" },
       ],
     },
     {
@@ -140,6 +142,15 @@ export default function NavMenu({
             {menuItems.map((item, idx) => (
               <div key={idx} className="relative py-3 min-w-0">
                 <button
+                  onClick={() => {
+                    if (item.route) {
+                      navigate(item.route);
+                      setOpenMenu(null);
+                      setOpenSub(null);
+                    } else {
+                      handleMenuClick(idx);
+                    }
+                  }}
                   onMouseEnter={() => handleMenuClick(idx)}
                   className={`flex items-center gap-1 px-1 md:px-2 lg:px-3 py-1.5 text-xs md:text-sm font-medium cursor-pointer whitespace-nowrap border-b-2 transition-all duration-150 ${
                     openMenu === idx

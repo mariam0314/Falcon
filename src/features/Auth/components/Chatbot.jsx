@@ -12,30 +12,30 @@ export default function Chatbot() {
 
   const messagesEndRef = useRef(null);
 
-  const getFalconBotReply = (text) => {
+  const getFelconBotReply = (text) => {
     const q = text.toLowerCase();
     if (q.includes("sell") || q.includes("trade") || q.includes("old phone") || q.includes("old device")) {
-      return "To sell your device on FALCON: 1. Click 'Sell' in the navigation. 2. Select your brand and model. 3. Answer a few questions about device condition for an instant price quote. 4. Choose your doorstep pickup slot and get paid instantly upon pickup!";
+      return "To sell your device on FELCON: 1. Click 'Sell' in the navigation. 2. Select your brand and model. 3. Answer a few questions about device condition for an instant price quote. 4. Choose your doorstep pickup slot and get paid instantly upon pickup!";
     }
     if (q.includes("buy") || q.includes("refurbished") || q.includes("warranty")) {
-      return "All refurbished devices on FALCON are 32-point quality checked, certified FALCON Assured, and include a 6-month warranty with a 15-day replacement guarantee!";
+      return "All refurbished devices on FELCON are 32-point quality checked, certified FELCON Assured, and include a 6-month warranty with a 15-day replacement guarantee!";
     }
     if (q.includes("order") || q.includes("track") || q.includes("status")) {
       return "You can view and track your orders anytime under Profile → Orders. If you've scheduled a trade-in pickup, you can review your confirmed slot in Profile → My Listings.";
     }
     if (q.includes("price") || q.includes("quote") || q.includes("calculate") || q.includes("value")) {
-      return "FALCON uses dynamic algorithmic pricing based on device specifications, screen condition, physical defects, and included accessories to give you the highest possible market value.";
+      return "FELCON uses dynamic algorithmic pricing based on device specifications, screen condition, physical defects, and included accessories to give you the highest possible market value.";
     }
     if (q.includes("seller") || q.includes("plan") || q.includes("subscription")) {
-      return "FALCON offers Basic (₹2,999/yr), Standard (₹5,999/yr), and Premium (₹11,999/yr) seller subscriptions with lowest commission (1-1.5%), verified badges, and Super Seller priority trade-in leads.";
+      return "FELCON offers Basic (₹2,999/yr), Standard (₹5,999/yr), and Premium (₹11,999/yr) seller subscriptions with lowest commission (1-1.5%), verified badges, and Super Seller priority trade-in leads.";
     }
     if (q.includes("contact") || q.includes("support") || q.includes("help") || q.includes("email") || q.includes("phone")) {
-      return "You can reach the FALCON team at support@falcon.in or call +91 (800) FALCON-01. Our support agents are active 24/7!";
+      return "You can reach the FELCON team at Felconsolutionsindia@gmail.com or call 8355989998 / 7021699033. Our team is here to help!";
     }
     if (q.includes("hello") || q.includes("hi") || q.includes("hey")) {
-      return "Hello! Welcome to FALCON. How can I assist you today? You can ask me about selling your old device, buying certified refurbished gadgets, seller subscriptions, or tracking orders.";
+      return "Hello! Welcome to FELCON. How can I assist you today? You can ask me about selling your old device, buying certified refurbished gadgets, seller subscriptions, or tracking orders.";
     }
-    return "Thank you for reaching out! You can explore devices under 'Buy Refurbished', get an instant evaluation under 'Sell', or contact our support desk directly at support@falcon.in.";
+    return "Thank you for reaching out! You can explore devices under 'Buy Refurbished', get an instant evaluation under 'Sell', or contact our support desk directly at Felconsolutionsindia@gmail.com.";
   };
 
   const sendMessage = () => {
@@ -57,7 +57,7 @@ export default function Chatbot() {
     ]);
 
     setTimeout(() => {
-      const reply = getFalconBotReply(trimmed);
+      const reply = getFelconBotReply(trimmed);
       setMessages((prev) => [
         ...prev.slice(0, -1),
         {
@@ -104,7 +104,7 @@ export default function Chatbot() {
                 🤖
               </div>
               <div>
-                <p className="text-sm font-semibold">FALCON Support</p>
+                <p className="text-sm font-semibold">FELCON Support</p>
                 <p className="text-[10px] opacity-80">Online now</p>
               </div>
             </div>

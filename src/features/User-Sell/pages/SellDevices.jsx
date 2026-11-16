@@ -332,7 +332,7 @@ export default function SellDevices({
       <section className="sd-benefits bg-gray-50 px-6 py-12">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold mb-10 text-center">
-            Why Sell On FALCON?
+            Why Sell On FELCON?
           </h2>
           <div className="sd-benefits-grid grid grid-cols-1 md:grid-cols-3 gap-8">
             {benefits.map((b, i) => (

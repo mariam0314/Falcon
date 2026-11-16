@@ -19,10 +19,7 @@ import {
   rejectDeletion,
 } from "../../../services/admin.api";
 import CatalogManager from "../components/Seller/CatalogManager";
-
-// ─── Config ───────────────────────────────────────────────────────────────────
-const BASE_URL = import.meta.env.VITE_API_URL || "/api";
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+import { buildApiUrl, BASE_URL, SOCKET_URL } from "../../../services/api.config";
 
 // ─── Normalization ────────────────────────────────────────────────────────────
 const normalizeSellerEntry = (entry) => {
@@ -172,7 +169,7 @@ const StatCard = ({ label, value, color, bg, border, loading }) => (
 
 const authFetch = async (endpoint, options = {}) => {
   const token = localStorage.getItem("accessToken");
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  const res = await fetch(buildApiUrl(endpoint), {
     headers: {
       "Content-Type": "application/json",
       ...(token && { Authorization: `Bearer ${token}` }),
@@ -187,7 +184,7 @@ const authFetch = async (endpoint, options = {}) => {
 
 const multipartFetch = async (endpoint, fd) => {
   const token = localStorage.getItem("accessToken");
-  const res = await fetch(`${BASE_URL}${endpoint}`, {
+  const res = await fetch(buildApiUrl(endpoint), {
     method: "POST",
     headers: { ...(token && { Authorization: `Bearer ${token}` }) },
     body: fd,

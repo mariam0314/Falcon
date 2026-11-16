@@ -1,16 +1,16 @@
 import axios from "axios";
+import { API_BASE_URL } from "./api.config";
 
 const API = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    import.meta.env.VITE_API_URI ||
-    (import.meta.env.VITE_URL ? `${import.meta.env.VITE_URL.replace(/\/api\/?$/, "")}/api` : null) ||
-    "/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
-// ─── Attach auth token to every request ────────────────────────────────────
+// ─── Attach auth token & normalize URL to avoid duplicate /api ─────────────
 API.interceptors.request.use((config) => {
+  if (config.url && config.url.startsWith("/api/")) {
+    config.url = config.url.slice(4);
+  }
   const token = localStorage.getItem("accessToken");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;

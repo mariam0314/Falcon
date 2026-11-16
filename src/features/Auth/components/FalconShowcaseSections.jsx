@@ -194,7 +194,7 @@ export default function FalconShowcaseSections() {
 
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-bold tracking-widest uppercase mb-6">
-                <span>🤖</span> FALCON AI Engine
+                <span>🤖</span> FELCON AI Engine
               </div>
 
               <h3 className="text-2xl sm:text-3xl font-black leading-snug mb-4">
@@ -275,7 +275,7 @@ export default function FalconShowcaseSections() {
               Seller Ecosystem
             </span>
             <h3 className="text-2xl sm:text-4xl font-black text-[#123B75] mt-3 mb-4">
-              Scale Your Electronics Business with FALCON
+              Scale Your Electronics Business with FELCON
             </h3>
             <p className="text-sm sm:text-base text-[#123B75]/80 leading-relaxed mb-6">
               Join thousands of verified electronics retailers. Unlock lowest platform commission (1–1.5%), Super Seller priority trade-in leads, and an integrated real-time analytics dashboard.

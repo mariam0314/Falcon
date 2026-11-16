@@ -85,7 +85,7 @@ export default function OtpGeneration() {
     let pending = pendingCartFromState;
     if (!pending) {
       try {
-        const stored = sessionStorage.getItem("falcon_pending_cart");
+        const stored = sessionStorage.getItem("felcon_pending_cart") || sessionStorage.getItem("falcon_pending_cart");
         if (stored) pending = JSON.parse(stored);
       } catch (_) {}
     }
@@ -93,6 +93,7 @@ export default function OtpGeneration() {
     if (pending?.productId) {
       try {
         await addItem(pending.productId, pending.quantity || 1);
+        sessionStorage.removeItem("felcon_pending_cart");
         sessionStorage.removeItem("falcon_pending_cart");
         toast.success(
           `Added "${pending.productTitle || "Product"}" to your cart!`,
@@ -183,11 +184,11 @@ export default function OtpGeneration() {
           <div className="w-full flex items-center gap-2 z-10">
             <img
               src="/logo.png"
-              alt="FALCON"
+              alt="FELCON"
               className="w-9 h-9 object-contain rounded-xl shadow-sm"
             />
             <span className="text-white font-black text-base tracking-wider">
-              FALCON
+              FELCON
             </span>
           </div>
 

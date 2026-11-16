@@ -77,7 +77,7 @@ export default function BasePrice() {
             {selectedModel.soldCount > 0 && (
               <div style={s.soldBadge}>
                 <span style={{ fontWeight: 700, color: "#16a34a" }}>{selectedModel.soldCount.toLocaleString("en-IN")}+</span>
-                <span style={{ color: "#64748b" }}> already sold on FALCON</span>
+                <span style={{ color: "#64748b" }}> already sold on FELCON</span>
               </div>
             )}
             <div className="bp-actions" style={s.actions}>

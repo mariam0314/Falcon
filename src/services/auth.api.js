@@ -1,18 +1,16 @@
 import axios from "axios";
-
-const BASE_ORIGIN =
-  import.meta.env.VITE_URL ||
-  (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "") : null) ||
-  (import.meta.env.VITE_API_URI ? import.meta.env.VITE_API_URI.replace(/\/api\/?$/, "") : null) ||
-  window.location.origin;
+import { API_BASE_URL, buildApiUrl } from "./api.config";
 
 const api = axios.create({
-  baseURL: BASE_ORIGIN,
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
-// REQUEST INTERCEPTOR — attach accessToken to every request
+// REQUEST INTERCEPTOR — attach accessToken to every request & prevent duplicate /api
 api.interceptors.request.use((config) => {
+  if (config.url && config.url.startsWith("/api/")) {
+    config.url = config.url.slice(4);
+  }
   const token = localStorage.getItem("accessToken");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -34,7 +32,7 @@ api.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          `${BASE_ORIGIN}/api/auth/refresh-token`,
+          buildApiUrl("/auth/refresh-token"),
           {},
           { withCredentials: true }
         );

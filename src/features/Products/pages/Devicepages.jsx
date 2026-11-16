@@ -1,4 +1,5 @@
 import Filter from "../components/Filter";
+import { useSearchParams } from "react-router-dom";
 
 const DEVICE_TYPE_FILTER = {
   key:     "deviceType",
@@ -277,8 +278,134 @@ export function TVPage() {
   return (
     <Filter
       data={{ filterConfig: tvFilterConfig }}
-      // ⚠️ "tv" not in schema enum yet — use "other" until you add it
       category="television"
+    />
+  );
+}
+
+// ─── GENERAL / ALL REFURBISHED ────────────────────────────────────────────────
+const allRefurbishedFilterConfig = [
+  DEVICE_TYPE_FILTER,
+  CONDITION_FILTER,
+  {
+    key: "brand",
+    label: "Brand",
+    type: "checkbox",
+    options: [
+      "Apple",
+      "Samsung",
+      "OnePlus",
+      "Google",
+      "Dell",
+      "HP",
+      "Lenovo",
+      "Xiaomi",
+      "Sony",
+      "Asus",
+    ],
+  },
+  {
+    key: "storage",
+    label: "Storage",
+    type: "pill",
+    options: ["128GB", "256GB", "512GB", "1TB"],
+  },
+  {
+    key: "specs.ram",
+    label: "RAM",
+    type: "pill",
+    options: ["6 GB", "8 GB", "16 GB", "32 GB"],
+  },
+  AVAILABILITY_FILTER,
+];
+
+export function getFilterConfigForCategory(category) {
+  switch (category?.toLowerCase()) {
+    case "mobile":
+      return phonesFilterConfig;
+    case "laptop":
+      return laptopsFilterConfig;
+    case "tablet":
+      return tabletsFilterConfig;
+    case "smartwatch":
+      return smartwatchFilterConfig;
+    case "television":
+      return tvFilterConfig;
+    default:
+      return allRefurbishedFilterConfig;
+  }
+}
+
+export function RefurbishedPage() {
+  const [searchParams] = useSearchParams();
+  const currentCategory = searchParams.get("category")?.toLowerCase() || "all";
+  const filterConfig = getFilterConfigForCategory(currentCategory);
+
+  const getTitle = () => {
+    switch (currentCategory) {
+      case "mobile":
+        return "Refurbished Mobile Phones";
+      case "laptop":
+        return "Refurbished Laptops";
+      case "tablet":
+        return "Refurbished Tablets";
+      case "smartwatch":
+        return "Refurbished Smartwatches";
+      case "television":
+        return "Refurbished Televisions";
+      default:
+        return "Refurbished Devices";
+    }
+  };
+
+  return (
+    <Filter
+      data={{
+        pageTitle: getTitle(),
+        filterConfig,
+      }}
+      showCategoryTabs={true}
+      defaultDeviceType="refurbished"
+    />
+  );
+}
+
+export function ProductsPage() {
+  const [searchParams] = useSearchParams();
+  const deviceType = searchParams.get("deviceType")?.toLowerCase();
+  const currentCategory = searchParams.get("category")?.toLowerCase() || "all";
+  const filterConfig = getFilterConfigForCategory(currentCategory);
+
+  if (deviceType === "refurbished") {
+    return <RefurbishedPage />;
+  }
+
+  const getTitle = () => {
+    const prefix = deviceType ? `${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)} ` : "";
+    switch (currentCategory) {
+      case "mobile":
+        return `${prefix}Mobile Phones`;
+      case "laptop":
+        return `${prefix}Laptops`;
+      case "tablet":
+        return `${prefix}Tablets`;
+      case "smartwatch":
+        return `${prefix}Smartwatches`;
+      case "television":
+        return `${prefix}Televisions`;
+      default:
+        return `${prefix}Devices`;
+    }
+  };
+
+  return (
+    <Filter
+      data={{
+        pageTitle: getTitle(),
+        filterConfig,
+      }}
+      showCategoryTabs={true}
+      defaultDeviceType={deviceType}
     />
   );
 }

@@ -5,22 +5,22 @@ const faqs = [
     category: "Orders & Delivery",
     items: [
       { q: "How long does delivery take?", a: "Most orders are delivered within 2–5 business days depending on your location. Metro cities typically receive orders in 2–3 days." },
-      { q: "Can I track my order?", a: "Yes! Once your order is shipped, you'll receive a tracking link via SMS and email. You can also track it from your FALCON account under 'My Orders'." },
+      { q: "Can I track my order?", a: "Yes! Once your order is shipped, you'll receive a tracking link via SMS and email. You can also track it from your FELCON account under 'My Orders'." },
       { q: "Do you offer same-day delivery?", a: "Same-day delivery is available in select metro cities for orders placed before 12 PM. Check availability at checkout by entering your pincode." },
     ],
   },
   {
     category: "Refurbished Devices",
     items: [
-      { q: "What does 'FALCON Assured' mean?", a: "FALCON Assured means the device has gone through our 40-point quality check, been professionally cleaned, repaired if needed, and certified by our in-house technicians." },
+      { q: "What does 'FELCON Assured' mean?", a: "FELCON Assured means the device has gone through our 40-point quality check, been professionally cleaned, repaired if needed, and certified by our in-house technicians." },
       { q: "What are the condition grades?", a: "We rate devices as Superb (like new), Good (minor signs of use), or Fair (visible wear but fully functional). All grades are 100% functional." },
-      { q: "Are refurbished phones unlocked?", a: "Yes, all phones sold on FALCON are fully unlocked and compatible with all Indian carriers including Jio, Airtel, Vi and BSNL." },
+      { q: "Are refurbished phones unlocked?", a: "Yes, all phones sold on FELCON are fully unlocked and compatible with all Indian carriers including Jio, Airtel, Vi and BSNL." },
     ],
   },
   {
     category: "Warranty & Returns",
     items: [
-      { q: "What warranty do I get?", a: "All FALCON Assured devices come with a 6-month warranty covering manufacturing defects. Accidental damage and liquid damage are not covered." },
+      { q: "What warranty do I get?", a: "All FELCON Assured devices come with a 6-month warranty covering manufacturing defects. Accidental damage and liquid damage are not covered." },
       { q: "What is your return policy?", a: "We offer a 7-day no-questions-asked return policy. The device must be in the same condition as received. Initiate returns from your account or contact support." },
       { q: "How do I claim warranty?", a: "Contact our support team via chat or call with your order ID. We'll arrange a free pickup, diagnose the issue, and either repair or replace the device within 7 business days." },
     ],
@@ -28,17 +28,44 @@ const faqs = [
   {
     category: "Payments & Offers",
     items: [
-      { q: "What payment methods do you accept?", a: "We accept UPI, credit/debit cards, net banking, EMI (0% on select cards), FALCON Pay Later, and cash on delivery for orders up to ₹20,000." },
-      { q: "How does the GOLD price work?", a: "FALCON GOLD is our loyalty membership. Members get exclusive lower prices on every product, free priority shipping, and early access to new arrivals." },
+      { q: "What payment methods do you accept?", a: "We accept UPI, credit/debit cards, net banking, EMI (0% on select cards), FELCON Pay Later, and cash on delivery for orders up to ₹20,000." },
+      { q: "How does the GOLD price work?", a: "FELCON GOLD is our loyalty membership. Members get exclusive lower prices on every product, free priority shipping, and early access to new arrivals." },
       { q: "Can I get EMI on refurbished devices?", a: "Yes! EMI options are available on all orders above ₹5,000 with 0% EMI available on select credit cards for 3, 6, and 12 month tenures." },
     ],
   },
 ];
 
 const tickets = [
-  { icon: "💬", label: "Live Chat", desc: "Chat with us now", sub: "Avg. response: 2 min", color: "bg-teal-50 border-teal-200 hover:border-teal-400", accent: "text-teal-600" },
-  { icon: "📞", label: "Call Us", desc: "1800-XXX-XXXX", sub: "Mon–Sat, 9AM–8PM", color: "bg-blue-50 border-blue-200 hover:border-blue-400", accent: "text-blue-600" },
-  { icon: "📧", label: "Email Support", desc: "support@falcon.in", sub: "Reply within 24 hrs", color: "bg-violet-50 border-violet-200 hover:border-violet-400", accent: "text-violet-600" },
+  {
+    icon: "💬",
+    label: "Live Chat",
+    desc: "Chat with us now",
+    sub: "Avg. response: 2 min",
+    color: "bg-teal-50 border-teal-200 hover:border-teal-400",
+    accent: "text-teal-600",
+    action: () => window.dispatchEvent(new Event("open-chatbot")),
+  },
+  {
+    icon: "📞",
+    label: "Call Us",
+    desc: "8355989998 / 7021699033",
+    sub: "Click to call directly",
+    color: "bg-blue-50 border-blue-200 hover:border-blue-400",
+    accent: "text-blue-600",
+    links: [
+      { text: "8355989998", href: "tel:8355989998" },
+      { text: "7021699033", href: "tel:7021699033" },
+    ],
+  },
+  {
+    icon: "📧",
+    label: "Email Support",
+    desc: "Felconsolutionsindia@gmail.com",
+    sub: "Click to write email",
+    color: "bg-violet-50 border-violet-200 hover:border-violet-400",
+    accent: "text-violet-600",
+    href: "mailto:Felconsolutionsindia@gmail.com",
+  },
 ];
 
 const quickLinks = [
@@ -89,7 +116,7 @@ export default function Support() {
         <div className="max-w-5xl mx-auto relative z-10">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-1 h-4 bg-teal-500 rounded-full" />
-            <span className="text-teal-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">FALCON Support</span>
+            <span className="text-teal-400 text-[10px] sm:text-xs font-black uppercase tracking-widest">FELCON Support</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-3">
             How can we<br />
@@ -118,28 +145,98 @@ export default function Support() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-10">
 
         {/* ── Contact options ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-10 -mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8 -mt-6">
           {tickets.map((t) => (
             <div
               key={t.label}
-              className={`bg-white border-2 rounded-2xl p-4 sm:p-5 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-3 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${t.color}`}
+              onClick={t.action}
+              className={`bg-white border-2 rounded-2xl p-4 sm:p-5 flex sm:flex-col items-center sm:items-start gap-4 sm:gap-3 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${t.color} ${t.action ? "cursor-pointer" : ""}`}
             >
               <span className="text-2xl sm:text-3xl flex-shrink-0">{t.icon}</span>
               <div className="flex-1 sm:flex-none">
                 <p className={`text-sm font-black ${t.accent}`}>{t.label}</p>
-                <p className="text-sm font-bold text-gray-800 mt-0.5">{t.desc}</p>
+                {t.links ? (
+                  <div className="flex flex-wrap items-center gap-2 mt-0.5">
+                    {t.links.map((link, li) => (
+                      <a
+                        key={li}
+                        href={link.href}
+                        className="text-sm font-bold text-gray-800 hover:text-teal-600 transition-colors"
+                      >
+                        {link.text}
+                      </a>
+                    ))}
+                  </div>
+                ) : t.href ? (
+                  <a
+                    href={t.href}
+                    className="text-sm font-bold text-gray-800 hover:text-teal-600 block mt-0.5 transition-colors break-all"
+                  >
+                    {t.desc}
+                  </a>
+                ) : (
+                  <p className="text-sm font-bold text-gray-800 mt-0.5">{t.desc}</p>
+                )}
                 <p className="text-xs text-gray-400 mt-0.5">{t.sub}</p>
               </div>
-              <svg className="w-4 h-4 text-gray-300 sm:hidden ml-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
             </div>
           ))}
         </div>
 
-        
-
-        {/* ── FAQ section ── */}
+        {/* ── Official Company Information ── */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-7 mb-10 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="w-1 h-5 bg-teal-500 rounded-full" />
+            <h2 className="text-base sm:text-lg font-black text-gray-900">
+              Official Company Details
+            </h2>
+          </div>
+          <div className="space-y-4 text-sm text-gray-700">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Company Name</p>
+              <p className="font-extrabold text-gray-900 text-base mt-0.5">
+                FELCON SOLUTIONS INDIA LLP
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Business Address</p>
+              <p className="mt-0.5 leading-relaxed text-gray-800 font-medium">
+                Shop 11, I 62/63, Navgrah Building, Poonam Sagar Complex, Mira Road East, Mira Bhayandar, Thane – 401107, Maharashtra, India.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-100">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Contact Numbers</p>
+                <div className="flex items-center gap-3 mt-1">
+                  <a
+                    href="tel:8355989998"
+                    className="font-bold text-teal-600 hover:text-teal-700 hover:underline"
+                  >
+                    8355989998
+                  </a>
+                  <span className="text-gray-300">|</span>
+                  <a
+                    href="tel:7021699033"
+                    className="font-bold text-teal-600 hover:text-teal-700 hover:underline"
+                  >
+                    7021699033
+                  </a>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Official Email</p>
+                <p className="mt-1">
+                  <a
+                    href="mailto:Felconsolutionsindia@gmail.com"
+                    className="font-bold text-teal-600 hover:text-teal-700 hover:underline break-all"
+                  >
+                    Felconsolutionsindia@gmail.com
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="mb-10">
           <div className="flex items-center gap-2.5 mb-4">
             <div className="w-1 h-5 bg-teal-500 rounded-full" />

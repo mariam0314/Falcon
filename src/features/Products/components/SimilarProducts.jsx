@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate }         from "react-router-dom";
 import { getDeviceImage, getDeviceFallback } from "../../../utils/deviceImages";
-
-const BASE = import.meta.env.VITE_API_URL || "/api";
+import { buildApiUrl, BASE_URL as BASE } from "../../../services/api.config";
 
 const conditionColors = {
   Superb: "bg-emerald-50 text-emerald-700",
@@ -38,7 +37,7 @@ export default function SimilarProducts({ brand, price, currentId }) {
       limit:    8,
       sortBy:   "newest",
     });
-    fetch(`${BASE}/products?${params}`)
+    fetch(buildApiUrl(`/products?${params}`))
       .then(r => r.json())
       .then(d => {
         if (!cancelled)

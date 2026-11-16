@@ -45,7 +45,7 @@ export default function SellLoginRequired() {
         {/* Steps hint */}
         <div style={s.stepsBox}>
           {[
-            { num: "1", text: "Log in to your FALCON account" },
+            { num: "1", text: "Log in to your FELCON account" },
             { num: "2", text: "Come back to the sell flow" },
             { num: "3", text: "Submit your listing instantly" },
           ].map((step) => (

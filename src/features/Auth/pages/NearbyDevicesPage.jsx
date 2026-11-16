@@ -3,14 +3,14 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../hooks/useAuth";
 import { getDeviceImage, getDeviceFallback } from "../../../utils/deviceImages";
+import { buildApiUrl } from "../../../services/api.config";
 
 // ─── API ──────────────────────────────────────────────────────────────────────
-const BASE_URL = import.meta.env.VITE_URL || window.location.origin;
 
 async function fetchNearbyProducts({ latitude, longitude, radius = 10, limit = 48 }) {
   const params = new URLSearchParams({ latitude, longitude, radius, limit });
   const token  = localStorage.getItem("accessToken");
-  const res    = await fetch(`${BASE_URL}/api/products/nearby?${params}`, {
+  const res    = await fetch(buildApiUrl(`/products/nearby?${params}`), {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   const data = await res.json();

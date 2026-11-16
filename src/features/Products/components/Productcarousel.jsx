@@ -160,7 +160,7 @@ const ProductCard = memo(({ product, onClick, width }) => {
 
         <div className="mt-2 sm:mt-3 flex items-center gap-1.5 bg-[#EDF4FF] border border-[#DCEBFF] rounded-xl px-2 sm:px-3 py-1.5 sm:py-2">
           <span className="text-[11px] sm:text-[12.5px] font-bold text-[#1D5EDB] flex items-center gap-1">
-            🛡 FALCON Assured
+            🛡 FELCON Assured
           </span>
         </div>
 
@@ -219,7 +219,7 @@ function useCarouselConfig() {
 }
 
 // ─── Main carousel ────────────────────────────────────────────────────────────
-const ProductCarousel = memo(({ title, category, deviceType = "refurbished", viewAllPath = "/" }) => {
+const ProductCarousel = memo(({ title, category, deviceType = "refurbished", viewAllPath = "/", buttonText }) => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { cardWidth, gap, visible } = useCarouselConfig();
@@ -269,12 +269,14 @@ const ProductCarousel = memo(({ title, category, deviceType = "refurbished", vie
   return (
     <section className="py-8 sm:py-10 md:py-12 bg-[#f5f5f5]">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6">
-        <div className="flex items-center justify-between mb-5 sm:mb-7">
+        <div className="flex items-center justify-between mb-5 sm:mb-7 flex-wrap gap-2">
           <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold text-gray-900">{title}</h2>
-          <button onClick={() => navigate(viewAllPath)}
-            className="text-xs sm:text-sm font-semibold text-[#00b4d8ff] hover:underline flex items-center gap-1">
-            View all
-            <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+          <button
+            onClick={() => navigate(viewAllPath)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-[#0077b6] hover:bg-[#005f90] shadow-sm hover:shadow transition-all cursor-pointer"
+          >
+            <span>{buttonText || "View all"}</span>
+            <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
