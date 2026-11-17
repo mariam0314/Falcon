@@ -34,9 +34,12 @@ export function sanitizeUrl(url) {
  */
 function getRawEnvApiUrl() {
   if (typeof window !== "undefined" && window.location) {
+    const hostname = window.location.hostname;
     const isLocalhost =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0" ||
+      hostname.endsWith(".local");
     const envUrl =
       (typeof import.meta !== "undefined" && import.meta.env && (
         import.meta.env.VITE_API_URL ||
@@ -45,12 +48,14 @@ function getRawEnvApiUrl() {
         import.meta.env.VITE_BACKEND_URL
       )) || "";
 
-    // If running in local development on localhost/127.0.0.1, always prioritize local backend
-    // to avoid CORS errors from hitting remote cloud instances (like onrender.com)
+    // If running in local development on localhost/127.0.0.1, prioritize relative "/api"
+    // (proxied by Vite dev server directly to http://127.0.0.1:3000)
+    // to guarantee zero CORS errors and prevent requests from leaking to remote onrender.com
     if (isLocalhost) {
-      if (!envUrl || envUrl.includes("onrender.com")) {
-        return "http://localhost:3000/api";
+      if (!envUrl || envUrl.includes("onrender.com") || envUrl.includes("vercel.app")) {
+        return "/api";
       }
+      return envUrl;
     }
     if (envUrl) return envUrl;
   }
@@ -84,7 +89,7 @@ export function getApiOrigin() {
 
 /**
  * Returns the base API URL (always ends with /api, no trailing slash).
- * E.g. "https://falcon-backend-1hnp.onrender.com/api" or "http://localhost:3000/api" or "/api"
+ * E.g. "https://falcon-backend-1hnp.onrender.com/api" or "/api"
  */
 export function getApiBaseUrl() {
   const sanitized = sanitizeUrl(getRawEnvApiUrl());
@@ -105,6 +110,7 @@ export function getApiBaseUrl() {
  * - Leading slashes are handled
  * - /api is NOT duplicated if endpoint already contains /api or /api/
  * - /products correctly maps to `${API_BASE_URL}/products`
+ * - Any accidental remote URL on localhost is rewritten to local /api
  */
 export function buildApiUrl(endpoint = "") {
   const base = getApiBaseUrl();
@@ -117,8 +123,23 @@ export function buildApiUrl(endpoint = "") {
   }
   path = path.replace(/^["'](.*)["']$/, "$1").trim();
 
-  // If path is already an absolute HTTP/HTTPS URL, return it sanitized
+  // If path is already an absolute HTTP/HTTPS URL
   if (/^https?:\/\//i.test(path)) {
+    if (typeof window !== "undefined" && window.location) {
+      const hostname = window.location.hostname;
+      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+      if (isLocalhost && (path.includes("onrender.com") || path.includes("vercel.app"))) {
+        try {
+          const u = new URL(path);
+          let subPath = u.pathname;
+          if (subPath.startsWith("/api/")) subPath = subPath.slice(4);
+          else if (subPath === "/api") subPath = "";
+          return `${base}${subPath}${u.search}`;
+        } catch {
+          return path.replace(/\/+$/, "");
+        }
+      }
+    }
     return path.replace(/\/+$/, "");
   }
 

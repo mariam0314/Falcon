@@ -15,6 +15,13 @@ const CONDITION_FILTER = {
   options: ["Fair", "Good", "Superb"],         
 };
 
+const RELEASE_YEAR_FILTER = {
+  key:     "releaseYear",
+  label:   "Release Year",
+  type:    "checkbox",
+  options: ["2026", "2025", "2024", "2023", "2022", "2021"],
+};
+
 const AVAILABILITY_FILTER = {
   key:     "availability",
   label:   "Availability",
@@ -26,11 +33,16 @@ const AVAILABILITY_FILTER = {
 const phonesFilterConfig = [
   DEVICE_TYPE_FILTER,
   CONDITION_FILTER,
+  RELEASE_YEAR_FILTER,
   {
     key:     "brand",
     label:   "Brand",
     type:    "checkbox",
-    options: ["Apple", "Samsung", "OnePlus", "Google", "Xiaomi", "POCO", "Nothing", "Vivo", "Oppo", "Realme", "Motorola"],
+    options: [
+      "Apple", "Samsung", "OnePlus", "Google", "Xiaomi", "Redmi", "POCO",
+      "Vivo", "iQOO", "Oppo", "Realme", "Motorola", "Nothing",
+      "Sony", "Asus", "Honor", "Huawei", "Tecno", "Infinix", "Lava"
+    ],
   },
   {
     key:     "specs.os",
@@ -84,47 +96,59 @@ export function PhonesPage() {
 const laptopsFilterConfig = [
   DEVICE_TYPE_FILTER,
   CONDITION_FILTER,
+  RELEASE_YEAR_FILTER,
   {
     key:     "brand",
     label:   "Brand",
     type:    "checkbox",
-    options: ["Apple", "HP", "Dell", "Lenovo", "Asus", "Acer", "MSI"],
+    options: [
+      "Apple", "HP", "Dell", "Lenovo", "Asus", "Acer", "MSI",
+      "Microsoft", "Samsung", "LG", "Razer", "Gigabyte", "Framework", "Huawei", "Honor"
+    ],
   },
   {
     key:     "specs.laptopType",
     label:   "Laptop Type",
     type:    "pill",
-    options: ["Ultrabook", "Gaming", "Everyday", "2-in-1 Convertible", "Business"],
+    options: ["Ultrabook", "Gaming", "Everyday", "2-in-1 Convertible", "Business", "Creator"],
   },
   {
     key:     "specs.processor",
     label:   "Processor",
     type:    "checkbox",
-    options: ["Apple M4", "Intel Core i5", "Intel Core i7", "Intel Core Ultra 7", "AMD Ryzen 5", "AMD Ryzen 7"],
+    options: [
+      "Apple M4", "Apple M3", "Apple M2", "Apple M1",
+      "Intel Core Ultra 9", "Intel Core Ultra 7", "Intel Core i9", "Intel Core i7", "Intel Core i5",
+      "AMD Ryzen 9", "AMD Ryzen 7", "AMD Ryzen 5", "Snapdragon X Elite"
+    ],
   },
   {
     key:     "specs.ram",
     label:   "RAM",
     type:    "pill",
-    options: ["8 GB", "16 GB", "24 GB", "32 GB", "36 GB"],
+    options: ["8 GB", "16 GB", "24 GB", "32 GB", "36 GB", "64 GB"],
   },
   {
     key:     "storage",
     label:   "Storage",
     type:    "pill",
-    options: ["512GB", "1TB"],
+    options: ["256GB", "512GB", "1TB", "2TB"],
   },
   {
     key:     "specs.graphics",
     label:   "Graphics",
     type:    "checkbox",
-    options: ["Apple Integrated", "Intel Iris Xe", "Intel Arc Graphics", "AMD Radeon Graphics", "NVIDIA RTX 2050", "NVIDIA RTX 3050", "NVIDIA RTX 4050", "NVIDIA RTX 4060"],
+    options: [
+      "Apple Integrated", "Intel Iris Xe", "Intel Arc Graphics", "AMD Radeon Graphics",
+      "NVIDIA RTX 4090", "NVIDIA RTX 4080", "NVIDIA RTX 4070", "NVIDIA RTX 4060",
+      "NVIDIA RTX 4050", "NVIDIA RTX 3060", "NVIDIA RTX 3050", "NVIDIA RTX 2050"
+    ],
   },
   {
     key:     "specs.display",
     label:   "Display Size",
     type:    "pill",
-    options: ["13.4", "13.6", "14.0", "14.2", "15.3", "15.6", "16.0", "16.1", "16.2"],        
+    options: ["13.3", "13.4", "13.6", "14.0", "14.2", "15.3", "15.6", "16.0", "16.1", "16.2", "17.3", "18.0"],        
   },
   AVAILABILITY_FILTER,
 ];
@@ -142,41 +166,42 @@ export function LaptopsPage() {
 const tabletsFilterConfig = [
   DEVICE_TYPE_FILTER,
   CONDITION_FILTER,
+  RELEASE_YEAR_FILTER,
   {
     key:     "brand",
     label:   "Brand",
     type:    "checkbox",
-    options: ["Apple", "Samsung", "Lenovo", "Xiaomi", "Realme", "OnePlus", "Honor"],
+    options: ["Apple", "Samsung", "Lenovo", "Xiaomi", "Redmi", "OnePlus", "OPPO", "Google", "Microsoft", "Realme", "Honor", "Huawei", "Amazon"],
   },
   {
     key:     "specs.ram",
     label:   "RAM",
     type:    "pill",
-    options: ["4 GB", "6 GB", "8 GB", "12 GB"],
+    options: ["4 GB", "6 GB", "8 GB", "12 GB", "16 GB"],
   },
   {
     key:     "specs.display",
     label:   "Screen Size",
     type:    "pill",
-    options: ["8", "10", "10.9", "11", "12.4", "12.9"],
+    options: ["8.3", "8.7", "10.2", "10.6", "10.9", "11.0", "12.1", "12.4", "12.7", "13.0", "14.6"],
   },
   {
     key:     "specs.dispType",
     label:   "Display Type",
     type:    "pill",
-    options: ["LCD", "AMOLED", "IPS", "OLED", "Retina"],
+    options: ["Tandem OLED", "Dynamic AMOLED 2X", "Liquid Retina", "OLED", "IPS LCD", "2.8K LCD", "3K LTPS"],
   },
   {
     key:     "storage",
     label:   "Storage",
     type:    "pill",
-    options: ["64GB", "128GB", "256GB", "512GB"],
+    options: ["64GB", "128GB", "256GB", "512GB", "1TB", "2TB"],
   },
   {
     key:     "specs.battery",
     label:   "Battery",
     type:    "checkbox",
-    options: ["5000 mAh", "7000 mAh", "8000 mAh", "10000 mAh", "11000 mAh"],
+    options: ["5000 mAh", "7000 mAh", "8000 mAh", "10000 mAh", "11200 mAh"],
   },
   AVAILABILITY_FILTER,
 ];
@@ -194,35 +219,39 @@ export function TabletsPage() {
 const smartwatchFilterConfig = [
   DEVICE_TYPE_FILTER,
   CONDITION_FILTER,
+  RELEASE_YEAR_FILTER,
   {
     key:     "brand",
     label:   "Brand",
     type:    "checkbox",
-    options: ["Apple", "Samsung", "Noise", "Boat", "Fire-Boltt", "Garmin", "Fitbit", "Amazfit", "OnePlus"],
+    options: [
+      "Apple", "Samsung", "Google", "Garmin", "Amazfit", "OnePlus", "Huawei",
+      "Fitbit", "Noise", "boAt", "Fire-Boltt", "Fastrack", "Titan", "Suunto", "Polar", "Withings"
+    ],
   },
   {
     key:     "specs.dispType",
     label:   "Display Type",
     type:    "pill",
-    options: ["AMOLED", "LCD", "OLED", "MIP", "E-Ink"],
+    options: ["AMOLED", "Always-On Retina OLED", "Super AMOLED", "MIP Transflective", "HD LCD"],
   },
   {
     key:     "specs.display",
-    label:   "Screen Size",
+    label:   "Case / Screen Size",
     type:    "pill",
-    options: ["1.2", "1.4", "1.6", "1.8", "2.0"],         // inches
+    options: ["40mm", "41mm", "42mm", "44mm", "45mm", "46mm", "47mm", "49mm"],
   },
   {
     key:     "specs.battery",
     label:   "Battery Life",
     type:    "checkbox",
-    options: ["1 Day", "2 Days", "5 Days", "7 Days", "14 Days", "30+ Days"],
+    options: ["1-2 Days", "3-5 Days", "7 Days", "14 Days", "30+ Days"],
   },
   {
     key:     "color",
-    label:   "Color / Strap",
+    label:   "Color / Case Finish",
     type:    "pill",
-    options: ["Black", "White", "Silver", "Rose Gold", "Blue", "Green", "Red"],
+    options: ["Black", "Titanium", "Silver", "Midnight", "Starlight", "Rose Gold", "Green", "Blue"],
   },
   AVAILABILITY_FILTER,
 ];
@@ -241,6 +270,7 @@ export function SmartwatchPage() {
 const allRefurbishedFilterConfig = [
   DEVICE_TYPE_FILTER,
   CONDITION_FILTER,
+  RELEASE_YEAR_FILTER,
   {
     key: "brand",
     label: "Brand",
@@ -253,9 +283,14 @@ const allRefurbishedFilterConfig = [
       "Dell",
       "HP",
       "Lenovo",
-      "Xiaomi",
-      "Sony",
       "Asus",
+      "Acer",
+      "MSI",
+      "Xiaomi",
+      "Garmin",
+      "Noise",
+      "boAt",
+      "Sony",
     ],
   },
   {

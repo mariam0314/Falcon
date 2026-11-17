@@ -3,7 +3,6 @@
 // Shown to the seller when they click "Accept" on a listing.
 // They can propose up to 3 pickup time slots.
 // Also reused from the "accepted" card to update slots.
-//
 import { useState } from "react";
 import toast from "react-hot-toast";
 

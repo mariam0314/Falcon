@@ -164,7 +164,21 @@ function Stars({ rating }) {
 }
 
 // ─── FILTER SECTION ───────────────────────────────────────────────────────────
-function FilterSection({ filter, active, onToggle }) {
+function FilterSection({ filter, active, onToggle, sourceDevices = [] }) {
+  const getOptCount = (opt) => {
+    if (!sourceDevices || sourceDevices.length === 0) return null;
+    if (filter.key === "releaseYear" || filter.key === "year") {
+      return sourceDevices.filter((d) => String(d.releaseYear) === String(opt)).length;
+    }
+    if (filter.key === "brand") {
+      return sourceDevices.filter((d) => d.brand?.toLowerCase() === String(opt).toLowerCase()).length;
+    }
+    if (filter.key === "condition") {
+      return sourceDevices.filter((d) => d.condition?.toLowerCase() === String(opt).toLowerCase()).length;
+    }
+    return null;
+  };
+
   return (
     <div className="border-b border-gray-100 last:border-0">
       <div className="px-4 pt-3 pb-1">
@@ -180,11 +194,12 @@ function FilterSection({ filter, active, onToggle }) {
           <div className="flex flex-wrap gap-1.5">
             {filter.options.map((opt) => {
               const sel = active.includes(opt);
+              const count = getOptCount(opt);
               return (
                 <button
                   key={opt}
                   onClick={() => onToggle(filter.key, opt)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-150 ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-150 inline-flex items-center gap-1 ${
                     sel
                       ? "text-white border-transparent shadow-sm"
                       : "bg-white text-gray-500 border-gray-200 hover:text-gray-700 hover:border-gray-400"
@@ -195,7 +210,12 @@ function FilterSection({ filter, active, onToggle }) {
                       : {}
                   }
                 >
-                  {opt}
+                  <span>{opt}</span>
+                  {count !== null && count > 0 && (
+                    <span className={`text-[10px] ${sel ? "text-white/80" : "text-gray-400"}`}>
+                      ({count})
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -204,6 +224,7 @@ function FilterSection({ filter, active, onToggle }) {
           <div className="space-y-1">
             {filter.options.map((opt) => {
               const sel = active.includes(opt);
+              const count = getOptCount(opt);
               return (
                 <label
                   key={opt}
@@ -239,11 +260,20 @@ function FilterSection({ filter, active, onToggle }) {
                     )}
                   </div>
                   <span
-                    className={`text-sm transition-colors ${sel ? "font-semibold" : "text-gray-600 group-hover:text-gray-800"}`}
+                    className={`text-sm transition-colors flex-1 ${sel ? "font-semibold" : "text-gray-600 group-hover:text-gray-800"}`}
                     style={sel ? { color: "#0077b6" } : {}}
                   >
                     {opt}
                   </span>
+                  {count !== null && (
+                    <span
+                      className={`text-[11px] font-medium ml-auto ${
+                        sel ? "text-[#0077b6]" : "text-gray-400"
+                      }`}
+                    >
+                      ({count})
+                    </span>
+                  )}
                 </label>
               );
             })}
@@ -267,6 +297,7 @@ function FilterPanel({
   onReset,
   totalActive,
   onClose,
+  sourceDevices = [],
 }) {
   return (
     <aside className="w-full md:w-64 lg:w-72 flex-shrink-0 bg-white rounded-2xl border border-gray-100 shadow-md md:sticky md:top-[73px] md:self-start overflow-hidden">
@@ -303,7 +334,7 @@ function FilterPanel({
           {totalActive > 0 && (
             <button
               onClick={onReset}
-              className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors"
+              className="text-xs font-semibold text-red-500 hover:text-red-600 transition-colors cursor-pointer"
             >
               Reset
             </button>
@@ -386,6 +417,7 @@ function FilterPanel({
             filter={filter}
             active={activeFilters[filter.key] || []}
             onToggle={onToggle}
+            sourceDevices={sourceDevices}
           />
         ))}
       </div>
@@ -772,6 +804,11 @@ function MobileDeviceCard({ device, onPreview }) {
                 {device.condition}
               </span>
             )}
+            {device.releaseYear && (
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md border bg-slate-100 text-slate-700 border-slate-200">
+                {device.releaseYear}
+              </span>
+            )}
             {device.rating > 0 && (
               <span className="flex items-center gap-0.5 bg-amber-50 border border-amber-200 rounded-md px-1.5 py-0.5">
                 <svg
@@ -928,6 +965,16 @@ function DesktopDeviceCard({ device, onPreview }) {
                 className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${CONDITION_COLORS[device.condition] || ""}`}
               >
                 {device.condition}
+              </span>
+            )}
+            {device.releaseYear && (
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                {device.releaseYear}
+              </span>
+            )}
+            {device.batteryHealth && (
+              <span className="text-[9px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                🔋 {device.batteryHealth}%
               </span>
             )}
             <span
@@ -1191,6 +1238,7 @@ function MobileFilterDrawer({
   onPriceMax,
   onReset,
   totalActive,
+  sourceDevices = [],
 }) {
   if (!open) return null;
   return (
@@ -1216,6 +1264,7 @@ function MobileFilterDrawer({
           onReset={onReset}
           totalActive={totalActive}
           onClose={onClose}
+          sourceDevices={sourceDevices}
         />
       </div>
     </div>
@@ -1350,7 +1399,9 @@ export default function Filter({
         continue;
       }
 
-      if (key === "deviceType" || key === "brand") {
+      if (key === "releaseYear" || key === "year") {
+        pre["releaseYear"] = val.split(",").map(s => s.trim()).filter(Boolean);
+      } else if (key === "deviceType" || key === "brand") {
         pre[key] = [val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()];
       } else {
         pre[key] = [val];
@@ -1422,6 +1473,10 @@ export default function Filter({
 
       if (key === "deviceType") {
         params.deviceType = vals[0].toLowerCase();
+        continue;
+      }
+      if (key === "releaseYear" || key === "year") {
+        params.releaseYear = vals.join(",");
         continue;
       }
       if (key === "condition") {
@@ -1568,6 +1623,11 @@ export default function Filter({
             return false;
           continue;
         }
+        if (key === "releaseYear" || key === "year") {
+          const y = String(d.releaseYear || "");
+          if (!vals.some((v) => String(v).trim() === y)) return false;
+          continue;
+        }
         if (key === "condition") {
           if (
             !vals.some((v) => v.toLowerCase() === d.condition?.toLowerCase())
@@ -1707,6 +1767,7 @@ export default function Filter({
         onPriceMax={setPriceMax}
         onReset={resetAll}
         totalActive={totalActive}
+        sourceDevices={sourceDevices}
       />
       <MobileSortDrawer
         open={mobileSortOpen}
@@ -1871,6 +1932,7 @@ export default function Filter({
             onPriceMax={setPriceMax}
             onReset={resetAll}
             totalActive={totalActive}
+            sourceDevices={sourceDevices}
           />
         </div>
 
@@ -1933,7 +1995,7 @@ export default function Filter({
                       (e.currentTarget.style.backgroundColor = "#e8f4fd")
                     }
                   >
-                    {val}
+                    {key === "releaseYear" || key === "year" ? `Year: ${val}` : val}
                     <svg
                       className="w-2.5 h-2.5"
                       fill="none"

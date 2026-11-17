@@ -3,8 +3,7 @@
 // Landing page for the sell flow.
 // Fetches real brands from the API for the selected category.
 // Clicking a brand navigates to /sell/:category/:brand (SelectModel).
-//
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SellCard from "../components/SellCard";
 import Feedback from "../../Auth/components/Feedback";
