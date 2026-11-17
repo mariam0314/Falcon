@@ -33,17 +33,27 @@ export const updateCartQuantity  = (id, quantity) =>
 export const removeFromCart      = (id) => request(`/cart/${id}`, { method: "DELETE" });
 export const clearCart           = ()  => request("/cart", { method: "DELETE" });
 export const checkCart           = (id) => request(`/cart/${id}/check`);
-export const checkoutFromCart    = (id, paymentMethod) =>
-  request(`/cart/${id}/checkout`, { method: "POST", body: JSON.stringify({ paymentMethod }) });
-export const checkoutMultiple    = (paymentMethod) =>
-  request("/cart/checkout", { method: "POST", body: JSON.stringify({ paymentMethod }) });
+export const checkoutFromCart = (id, payload) => {
+  const body = typeof payload === "string" ? { paymentMethod: payload } : payload;
+  return request(`/cart/${id}/checkout`, { method: "POST", body: JSON.stringify(body) });
+};
+export const checkoutMultiple = (payload) => {
+  const body = typeof payload === "string" ? { paymentMethod: payload } : payload;
+  return request("/cart/checkout", { method: "POST", body: JSON.stringify(body) });
+};
 
 // ─── BUY / ORDERS ────────────────────────────────────────────────────────────
-export const buyProduct          = (id, paymentMethod) =>
-  request(`/orders/products/${id}/buy`, { method: "POST", body: JSON.stringify({ paymentMethod }) });
-export const getMyOrders         = (filters = {}) => {
+export const buyProduct = (id, payload) => {
+  const body = typeof payload === "string" ? { paymentMethod: payload } : payload;
+  return request(`/orders/products/${id}/buy`, { method: "POST", body: JSON.stringify(body) });
+};
+export const applyCoupon = (code, amount) =>
+  request(`/orders/apply-coupon`, { method: "POST", body: JSON.stringify({ code, amount }) });
+export const trackOrder = (orderId) =>
+  request(`/orders/${orderId}/track`);
+export const getMyOrders = (filters = {}) => {
   const p = new URLSearchParams(filters).toString();
   return request(`/orders/my${p ? "?" + p : ""}`);
 };
-export const cancelOrder         = (orderId) =>
+export const cancelOrder = (orderId) =>
   request(`/orders/${orderId}/cancel`, { method: "POST" });

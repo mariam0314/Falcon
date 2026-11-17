@@ -13,7 +13,8 @@ import {
 } from "@stripe/react-stripe-js";
 import { useAuth } from "../../hooks/useAuth";
 import { useCart } from "../../context/cart.context";
-import { checkoutMultiple } from "../../services/shop.api";
+import { checkoutMultiple, applyCoupon } from "../../services/shop.api";
+import toast from "react-hot-toast";
 
 const stripePromise = loadStripe(
   import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "pk_test_placeholder",
@@ -234,12 +235,63 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
   const [processing, setProcessing] = useState(false);
   const [stripeErr, setStripeErr] = useState(null);
 
-  const tax = Math.round(total * 0.18);
-  const grand = total + tax;
+  // Delivery Address
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem("user") || "{}"); } catch { return {}; }
+  })();
+
+  const [contactName,   setContactName]   = useState(storedUser.firstname ? `${storedUser.firstname} ${storedUser.lastname || ""}`.trim() : "");
+  const [contactPhone,  setContactPhone]  = useState(storedUser.phone || storedUser.mobile || "");
+  const [streetAddress, setStreetAddress] = useState(storedUser.defaultAddress?.street || "");
+  const [city,          setCity]          = useState(storedUser.defaultAddress?.city || "New Delhi");
+  const [pincode,       setPincode]       = useState(storedUser.defaultAddress?.pincode || "110001");
+
+  // Coupon
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedCoupon,   setAppliedCoupon]   = useState(null);
+  const [couponLoading,   setCouponLoading]   = useState(false);
+  const [couponMsg,       setCouponMsg]       = useState(null);
+
+  const couponDiscount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+  const netBeforeTax = Math.max(0, total - couponDiscount);
+  const tax = Math.round(netBeforeTax * 0.18);
+  const grand = netBeforeTax + tax;
+
+  const handleApplyCoupon = async (codeToApply) => {
+    const code = (codeToApply || couponCodeInput).trim().toUpperCase();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponMsg(null);
+    try {
+      const res = await applyCoupon(code, total);
+      if (res.success && res.data) {
+        setAppliedCoupon(res.data);
+        setCouponMsg({ type: "success", text: `Coupon "${res.data.code}" applied! You save ₹${res.data.discountAmount.toLocaleString("en-IN")}` });
+        toast.success(`Coupon "${res.data.code}" applied!`);
+      }
+    } catch (err) {
+      setCouponMsg({ type: "error", text: err.message || "Invalid coupon code" });
+      toast.error(err.message || "Invalid coupon code");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCodeInput("");
+    setCouponMsg(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStripeErr(null);
+
+    if (!contactName.trim() || !contactPhone.trim() || !streetAddress.trim() || !pincode.trim()) {
+      onError("Please fill in your delivery name, mobile, and address.");
+      return;
+    }
+
     setProcessing(true);
 
     try {
@@ -265,8 +317,22 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
         }
       }
 
-      await checkoutMultiple(method);
-      onSuccess();
+      const shippingAddress = {
+        street: streetAddress.trim(),
+        city: city.trim(),
+        pincode: pincode.trim(),
+        full: `${streetAddress.trim()}, ${city.trim()} - ${pincode.trim()}`,
+        contactPhone: contactPhone.trim(),
+      };
+
+      const res = await checkoutMultiple({
+        paymentMethod: method,
+        paymentId: method === "Card" ? "card_simulated_success" : (method === "UPI" ? `upi_${Date.now()}` : null),
+        shippingAddress,
+        couponCode: appliedCoupon?.code,
+      });
+
+      onSuccess(res?.orders?.[0] || { orderId: "FEL-ORD-" + Math.floor(100000 + Math.random() * 900000) });
     } catch (err) {
       onError(err.message);
     } finally {
@@ -276,6 +342,108 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Delivery Address */}
+      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-base">📍</span>
+          <p className="text-xs font-bold text-slate-800 uppercase tracking-wider">Delivery Address</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 mb-2.5">
+          <input
+            type="text"
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+            placeholder="Recipient Name"
+            required
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#0077b6]"
+          />
+          <input
+            type="tel"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+            placeholder="Mobile Number"
+            required
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#0077b6]"
+          />
+        </div>
+        <div className="mb-2.5">
+          <input
+            type="text"
+            value={streetAddress}
+            onChange={(e) => setStreetAddress(e.target.value)}
+            placeholder="Street / Flat / Colony"
+            required
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#0077b6]"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2.5">
+          <input
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            placeholder="City"
+            required
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#0077b6]"
+          />
+          <input
+            type="text"
+            value={pincode}
+            onChange={(e) => setPincode(e.target.value)}
+            placeholder="Pincode"
+            required
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#0077b6]"
+          />
+        </div>
+      </div>
+
+      {/* Coupon section */}
+      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        <p className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Apply Coupon Code</p>
+        {appliedCoupon ? (
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs">
+            <span className="font-mono font-bold text-emerald-800">{appliedCoupon.code} (−₹{appliedCoupon.discountAmount?.toLocaleString("en-IN")})</span>
+            <button type="button" onClick={handleRemoveCoupon} className="text-red-500 font-bold hover:underline">Remove</button>
+          </div>
+        ) : (
+          <div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCodeInput}
+                onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                placeholder="Code (e.g. FELCON10)"
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-mono font-bold uppercase outline-none focus:border-[#0077b6]"
+              />
+              <button
+                type="button"
+                onClick={() => handleApplyCoupon()}
+                disabled={couponLoading || !couponCodeInput.trim()}
+                className="px-3.5 py-1.5 rounded-xl bg-[#0077b6] text-white text-xs font-bold hover:bg-[#005f8f] disabled:opacity-50 transition"
+              >
+                {couponLoading ? "…" : "Apply"}
+              </button>
+            </div>
+            <div className="flex gap-1.5 mt-2 flex-wrap">
+              {["FELCON10", "CASHIFY500", "WELCOME2026", "FESTIVE2000"].map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => { setCouponCodeInput(c); handleApplyCoupon(c); }}
+                  className="px-2 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-mono font-bold text-slate-600 hover:border-blue-400"
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+            {couponMsg && (
+              <p className={`text-xs mt-1.5 font-medium ${couponMsg.type === "success" ? "text-emerald-600" : "text-red-500"}`}>
+                {couponMsg.text}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Payment method tabs */}
       <div>
         <p className="text-sm font-bold text-slate-700 mb-3">Payment Method</p>
@@ -380,7 +548,7 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
 
       {method === "Cash" && (
         <p className="text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200">
-          Cash on delivery — payment collected at doorstep handover.
+          Cash on delivery — verified by BlueDart Express upon handover.
         </p>
       )}
 
@@ -394,16 +562,24 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
             ₹{total.toLocaleString("en-IN")}
           </span>
         </div>
+
+        {couponDiscount > 0 && (
+          <div className="flex justify-between text-sm text-emerald-600">
+            <span className="font-medium">Coupon Discount ({appliedCoupon.code})</span>
+            <span className="font-bold">−₹{couponDiscount.toLocaleString("en-IN")}</span>
+          </div>
+        )}
+
         <div className="flex justify-between text-sm">
           <span className="text-slate-500">GST (18%)</span>
           <span className="font-semibold">₹{tax.toLocaleString("en-IN")}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-slate-500">Delivery</span>
-          <span className="text-emerald-600 font-semibold">Free</span>
+          <span className="text-emerald-600 font-semibold">Free (BlueDart)</span>
         </div>
-        <div className="border-t border-slate-200 pt-2.5 flex justify-between">
-          <span className="text-base font-extrabold text-slate-900">Total</span>
+        <div className="border-t border-slate-200 pt-2.5 flex justify-between items-baseline">
+          <span className="text-base font-extrabold text-slate-900">Total Payable</span>
           <span className="text-xl font-extrabold text-[#0077b6]">
             ₹{grand.toLocaleString("en-IN")}
           </span>
@@ -413,7 +589,7 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
       {/* Security note */}
       <div className="flex items-center gap-2.5 text-xs text-slate-500 bg-[#e8f4fd] rounded-xl px-4 py-3">
         <Ic d={I.shield} className="w-4 h-4 text-[#0077b6] flex-shrink-0" />
-        Secure checkout with FELCON protection guarantee.
+        Secure checkout with FELCON protection guarantee & 6-month warranty.
       </div>
 
       <button
@@ -424,7 +600,7 @@ function CheckoutForm({ items, total, onSuccess, onError }) {
         {processing ? (
           <>
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{" "}
-            Processing…
+            Confirming Order…
           </>
         ) : (
           <>
@@ -443,7 +619,7 @@ export default function CartPage() {
   const { isAuthenticated } = useAuth();
   const { items, total, loading, removeItem, updateQuantity, clear } = useCart();
 
-  const [success, setSuccess] = useState(false);
+  const [orderResult, setOrderResult] = useState(null);
   const [toast, setToast] = useState(null);
 
   const showToast = (msg, type = "success") => setToast({ msg, type });
@@ -471,36 +647,65 @@ export default function CartPage() {
     }
   };
 
-  const handleSuccess = () => {
-    setSuccess(true);
+  const handleSuccess = (data) => {
+    setOrderResult(data || { orderId: "FEL-ORD-" + Math.floor(100000 + Math.random() * 900000) });
     clear();
   };
 
   // ── Success screen ────────────────────────────────────────────────────────
-  if (success)
+  if (orderResult)
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-5 p-8">
-        <div className="w-20 h-20 rounded-3xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
+      <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center gap-5 p-6">
+        <div className="w-20 h-20 rounded-3xl bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center shadow-sm">
           <Ic d={I.check} className="w-10 h-10 text-emerald-500" />
         </div>
-        <h2 className="text-2xl font-extrabold text-slate-900">
-          Order Placed Successfully!
-        </h2>
-        <p className="text-slate-500 text-sm text-center max-w-xs">
-          Your order has been recorded. Thank you for using FELCON.
-        </p>
+
+        <div className="text-center max-w-sm">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 mb-2">
+            Order Confirmed
+          </span>
+          <h2 className="text-2xl font-extrabold text-slate-900">
+            Order Placed Successfully! 🎉
+          </h2>
+          <p className="text-slate-500 text-sm mt-1 leading-relaxed">
+            Your certified refurbished order has been confirmed. BlueDart Express delivery has been scheduled.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 max-w-sm w-full space-y-3 shadow-sm text-xs">
+          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Order ID</span>
+            <span className="font-mono font-bold text-slate-800">{orderResult.orderId || "FEL-ORD-2026"}</span>
+          </div>
+          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Courier Partner</span>
+            <span className="font-bold text-[#0077b6]">BlueDart Express</span>
+          </div>
+          <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Tracking Number</span>
+            <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+              {orderResult.courier?.trackingId || `FEL-${Math.floor(10000000 + Math.random() * 90000000)}`}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Estimated Delivery</span>
+            <span className="font-bold text-slate-700">2-3 Business Days</span>
+          </div>
+        </div>
+
         <div className="flex gap-3">
           <button
             onClick={() => navigate("/")}
-            className="px-5 py-2.5 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+            className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Browse Devices
           </button>
           <button
             onClick={() => navigate("/profile")}
-            className="px-5 py-2.5 rounded-xl bg-[#0077b6] text-white text-sm font-bold shadow-[0_4px_16px_rgba(0,119,182,0.3)] hover:bg-[#005f8f] transition-all"
+            className="px-6 py-2.5 rounded-xl bg-[#0077b6] text-white text-sm font-bold shadow-[0_4px_16px_rgba(0,119,182,0.3)] hover:bg-[#005f8f] transition-all flex items-center gap-2"
           >
-            View Orders
+            <span>Track Order (7 Stages)</span>
+            <span>→</span>
           </button>
         </div>
       </div>

@@ -237,52 +237,6 @@ export function SmartwatchPage() {
 }
 
 
-// TELEVISIONS
-const tvFilterConfig = [
-  DEVICE_TYPE_FILTER,
-  CONDITION_FILTER,
-  {
-    key:     "brand",
-    label:   "Brand",
-    type:    "checkbox",
-    options: ["Sony", "Samsung", "LG", "Xiaomi", "OnePlus", "TCL", "Hisense", "Vu", "iFFALCON"],
-  },
-  {
-    key:     "specs.display",
-    label:   "Screen Size (inches)",
-    type:    "pill",
-    options: ["32", "40", "43", "50", "55", "65", "75", "85"],
-  },
-  {
-    key:     "specs.dispType",
-    label:   "Panel Type",
-    type:    "pill",
-    options: ["LED", "QLED", "OLED", "QNED", "Mini-LED", "Neo QLED"],
-  },
-  {
-    key:     "specs.resolution",
-    label:   "Resolution",
-    type:    "pill",
-    options: ["HD", "Full HD", "4K UHD", "8K UHD"],          
-  },
-  {
-    key:     "specs.refresh",
-    label:   "Refresh Rate",
-    type:    "pill",
-    options: ["60 Hz", "120 Hz", "144 Hz"],
-  },
-  AVAILABILITY_FILTER,
-];
-
-export function TVPage() {
-  return (
-    <Filter
-      data={{ filterConfig: tvFilterConfig }}
-      category="television"
-    />
-  );
-}
-
 // ─── GENERAL / ALL REFURBISHED ────────────────────────────────────────────────
 const allRefurbishedFilterConfig = [
   DEVICE_TYPE_FILTER,
@@ -329,8 +283,6 @@ export function getFilterConfigForCategory(category) {
       return tabletsFilterConfig;
     case "smartwatch":
       return smartwatchFilterConfig;
-    case "television":
-      return tvFilterConfig;
     default:
       return allRefurbishedFilterConfig;
   }
@@ -351,8 +303,6 @@ export function RefurbishedPage() {
         return "Refurbished Tablets";
       case "smartwatch":
         return "Refurbished Smartwatches";
-      case "television":
-        return "Refurbished Televisions";
       default:
         return "Refurbished Devices";
     }
@@ -390,8 +340,6 @@ export function ProductsPage() {
         return `${prefix}Tablets`;
       case "smartwatch":
         return `${prefix}Smartwatches`;
-      case "television":
-        return `${prefix}Televisions`;
       default:
         return `${prefix}Devices`;
     }

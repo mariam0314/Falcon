@@ -7,8 +7,6 @@ const CATEGORIES = [
   "laptop",
   "tablet",
   "smartwatch",
-  "television",
-  "other",
 ];
 const DEVICE_TYPES = ["new", "refurbished", "old"];
 const CONDITIONS = ["Fair", "Good", "Superb"];
@@ -72,19 +70,6 @@ const BRANDS_BY_CATEGORY = {
     "Huawei",
     "Other",
   ],
-  television: [
-    "Samsung",
-    "LG",
-    "Sony",
-    "OnePlus",
-    "Xiaomi",
-    "Realme",
-    "TCL",
-    "Hisense",
-    "Panasonic",
-    "Vu",
-    "Other",
-  ],
   other: ["Other"],
 };
 
@@ -93,7 +78,6 @@ const RAM_OPTIONS = {
   laptop: ["4 GB", "8 GB", "16 GB", "32 GB", "64 GB"],
   tablet: ["2 GB", "3 GB", "4 GB", "6 GB", "8 GB", "12 GB", "16 GB"],
   smartwatch: [], // no RAM field
-  television: [], // no RAM field
   other: ["2 GB", "4 GB", "6 GB", "8 GB", "12 GB", "16 GB", "32 GB"],
 };
 
@@ -102,7 +86,6 @@ const STORAGE_OPTIONS = {
   laptop: ["128 GB", "256 GB", "512 GB", "1 TB", "2 TB", "4 TB"],
   tablet: ["32 GB", "64 GB", "128 GB", "256 GB", "512 GB", "1 TB"],
   smartwatch: ["4 GB", "8 GB", "16 GB", "32 GB"],
-  television: [], // no internal storage
   other: ["32 GB", "64 GB", "128 GB", "256 GB", "512 GB", "1 TB"],
 };
 
@@ -129,16 +112,6 @@ const DISPLAY_TYPES = {
   ],
   tablet: ["IPS LCD", "OLED", "Liquid Retina", "TFT LCD", "AMOLED"],
   smartwatch: ["AMOLED", "OLED", "LCD", "Retina LTPO", "Transflective LCD"],
-  television: [
-    "OLED",
-    "QLED",
-    "4K LED",
-    "8K LED",
-    "MiniLED",
-    "Micro LED",
-    "NanoCell",
-    "Neo QLED",
-  ],
   other: ["IPS", "OLED", "AMOLED", "LCD"],
 };
 
@@ -147,7 +120,6 @@ const REFRESH_RATES = {
   laptop: ["60 Hz", "90 Hz", "120 Hz", "144 Hz", "165 Hz", "240 Hz", "360 Hz"],
   tablet: ["60 Hz", "90 Hz", "120 Hz"],
   smartwatch: ["60 Hz"],
-  television: ["60 Hz", "120 Hz"],
   other: ["60 Hz", "90 Hz", "120 Hz", "144 Hz"],
 };
 
@@ -171,7 +143,6 @@ const BATTERY_CAPACITIES = {
     "11000 mAh",
   ],
   smartwatch: ["180 mAh", "250 mAh", "300 mAh", "400 mAh", "500 mAh"],
-  television: [], // no battery
   other: ["2000 mAh", "3000 mAh", "4000 mAh", "5000 mAh"],
 };
 
@@ -208,7 +179,6 @@ const OS_OPTIONS = {
   laptop: ["Windows 11", "Windows 10", "macOS", "Linux", "ChromeOS"],
   tablet: ["Android", "iPadOS", "Windows 11"],
   smartwatch: ["watchOS", "Wear OS", "Tizen", "HarmonyOS"],
-  television: ["Android TV", "Tizen", "WebOS", "Fire TV", "Google TV"],
   other: [],
 };
 const TV_SIZES = [
@@ -666,76 +636,6 @@ const SPEC_FIELDS_BY_CATEGORY = {
           label: "Internal Storage",
           type: "select",
           options: (cat) => STORAGE_OPTIONS[cat],
-        },
-      ],
-    },
-  ],
-
-  television: [
-    {
-      section: "📺 TV Details",
-      fields: [
-        {
-          key: "tvSize",
-          label: "Screen Size",
-          type: "select",
-          options: () => TV_SIZES,
-          required: true,
-        },
-        {
-          key: "tvResolution",
-          label: "Resolution",
-          type: "select",
-          options: () => TV_RESOLUTIONS,
-          required: true,
-        },
-        {
-          key: "displayType",
-          label: "Panel Type",
-          type: "select",
-          options: (cat) => DISPLAY_TYPES[cat],
-          required: true,
-        },
-        {
-          key: "refreshRate",
-          label: "Refresh Rate",
-          type: "select",
-          options: (cat) => REFRESH_RATES[cat],
-          required: true,
-        },
-        {
-          key: "os",
-          label: "Smart TV OS",
-          type: "select",
-          options: (cat) => OS_OPTIONS[cat],
-        },
-      ],
-    },
-    {
-      section: "⚡ Hardware",
-      fields: [
-        {
-          key: "ram",
-          label: "RAM",
-          type: "select",
-          options: () => ["512 MB", "1 GB", "1.5 GB", "2 GB", "3 GB", "4 GB"],
-        },
-        {
-          key: "chipsetFull",
-          label: "Processor",
-          type: "input",
-          placeholder: "e.g. Cortex A73 Quad Core",
-        },
-      ],
-    },
-    {
-      section: "💾 Storage",
-      fields: [
-        {
-          key: "storageType",
-          label: "Internal Storage",
-          type: "select",
-          options: () => ["8 GB", "16 GB", "32 GB", "64 GB"],
         },
       ],
     },

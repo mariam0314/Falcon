@@ -33,6 +33,28 @@ export function sanitizeUrl(url) {
  * Retrieves the raw configured API URL from Vite environment variables.
  */
 function getRawEnvApiUrl() {
+  if (typeof window !== "undefined" && window.location) {
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+    const envUrl =
+      (typeof import.meta !== "undefined" && import.meta.env && (
+        import.meta.env.VITE_API_URL ||
+        import.meta.env.VITE_API_URI ||
+        import.meta.env.VITE_URL ||
+        import.meta.env.VITE_BACKEND_URL
+      )) || "";
+
+    // If running in local development on localhost/127.0.0.1, always prioritize local backend
+    // to avoid CORS errors from hitting remote cloud instances (like onrender.com)
+    if (isLocalhost) {
+      if (!envUrl || envUrl.includes("onrender.com")) {
+        return "http://localhost:3000/api";
+      }
+    }
+    if (envUrl) return envUrl;
+  }
+
   if (typeof import.meta !== "undefined" && import.meta.env) {
     return (
       import.meta.env.VITE_API_URL ||
@@ -117,6 +139,17 @@ export function buildApiUrl(endpoint = "") {
  * Returns the WebSocket server URL.
  */
 export function getSocketUrl() {
+  if (typeof window !== "undefined" && window.location) {
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+    if (isLocalhost) {
+      const envSocket = import.meta.env?.VITE_SOCKET_URL;
+      if (!envSocket || envSocket.includes("onrender.com")) {
+        return "http://localhost:3000";
+      }
+    }
+  }
   if (typeof import.meta !== "undefined" && import.meta.env?.VITE_SOCKET_URL) {
     const sanitized = sanitizeUrl(import.meta.env.VITE_SOCKET_URL);
     if (sanitized) return sanitized;

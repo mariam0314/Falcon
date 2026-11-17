@@ -98,3 +98,83 @@ export const rejectDeletion = (userId, note = "") =>
     method: "POST",
     body:   JSON.stringify({ note }),
   });
+
+////////////////////////////////////////////////////////////////////
+//// CASHIFY-STYLE MARKETPLACE ADMIN OPERATIONS
+////////////////////////////////////////////////////////////////////
+
+// GET /admin/analytics
+export const getDashboardAnalytics = () =>
+  request("/admin/analytics");
+
+// GET /admin/products
+export const getAllProductsAdmin = (filters = {}) =>
+  request(`/admin/products${buildQuery(filters)}`);
+
+// PATCH /admin/products/:id
+export const updateProductAdmin = (id, data) =>
+  request(`/admin/products/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+// GET /admin/selling-requests
+export const getSellingRequests = (filters = {}) =>
+  request(`/admin/selling-requests${buildQuery(filters)}`);
+
+// PATCH /admin/selling-requests/:id/status
+export const updateSellingRequestStatus = (id, status, notes = "") =>
+  request(`/admin/selling-requests/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status, notes }),
+  });
+
+// GET /admin/exchange-requests
+export const getExchangeRequests = (filters = {}) =>
+  request(`/admin/exchange-requests${buildQuery(filters)}`);
+
+// PATCH /admin/exchange-requests/:id/status
+export const updateExchangeRequestStatus = (id, status, notes = "") =>
+  request(`/admin/exchange-requests/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status, notes }),
+  });
+
+// GET /admin/inspections
+export const getDeviceInspections = (filters = {}) =>
+  request(`/admin/inspections${buildQuery(filters)}`);
+
+// POST /admin/inspections/run
+export const runDeviceInspection = (payload) =>
+  request("/admin/inspections/run", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+// PATCH /admin/orders/:id/lifecycle
+export const updateOrderLifecycle = (id, data) =>
+  request(`/admin/orders/${id}/lifecycle`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+
+// GET /admin/coupons
+export const getCouponsAdmin = () =>
+  request("/admin/coupons");
+
+// POST /admin/coupons
+export const createCouponAdmin = (couponData) =>
+  request("/admin/coupons", {
+    method: "POST",
+    body: JSON.stringify(couponData),
+  });
+
+// PATCH /admin/coupons/:id/toggle
+export const toggleCouponAdmin = (id) =>
+  request(`/admin/coupons/${id}/toggle`, {
+    method: "PATCH",
+  });
+
+// GET /admin/customers
+export const getCustomersAdmin = (filters = {}) =>
+  request(`/admin/customers${buildQuery(filters)}`);

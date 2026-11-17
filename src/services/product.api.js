@@ -2,7 +2,14 @@ import { buildApiUrl, BASE_URL } from "./api.config";
 
 // ─── JSON request (for non-file endpoints) ────────────────────────────────────
 const request = async (endpoint, options = {}) => {
-  const token = localStorage.getItem("accessToken");
+  const rawToken = localStorage.getItem("accessToken");
+  const token =
+    rawToken &&
+    rawToken !== "undefined" &&
+    rawToken !== "null" &&
+    rawToken.trim() !== ""
+      ? rawToken.trim()
+      : null;
 
   const res = await fetch(buildApiUrl(endpoint), {
     headers: {
@@ -13,14 +20,26 @@ const request = async (endpoint, options = {}) => {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Something went wrong");
+  if (!res.ok) {
+    if (res.status === 401 && rawToken) {
+      localStorage.removeItem("accessToken");
+    }
+    throw new Error(data.message || "Something went wrong");
+  }
   return data;
 };
 
 // ─── Multipart request (for endpoints that use multer / file uploads) ─────────
 // Does NOT set Content-Type — browser sets it automatically with correct boundary
 const multipartRequest = async (endpoint, formData, method = "POST") => {
-  const token = localStorage.getItem("accessToken");
+  const rawToken = localStorage.getItem("accessToken");
+  const token =
+    rawToken &&
+    rawToken !== "undefined" &&
+    rawToken !== "null" &&
+    rawToken.trim() !== ""
+      ? rawToken.trim()
+      : null;
 
   const res = await fetch(buildApiUrl(endpoint), {
     method,
@@ -33,7 +52,12 @@ const multipartRequest = async (endpoint, formData, method = "POST") => {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.message || "Something went wrong");
+  if (!res.ok) {
+    if (res.status === 401 && rawToken) {
+      localStorage.removeItem("accessToken");
+    }
+    throw new Error(data.message || "Something went wrong");
+  }
   return data;
 };
 

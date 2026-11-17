@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { buildApiUrl, BASE_URL } from "../../../../services/api.config";
 
-const CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch", "television"];
+const CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch"];
 const token = () => localStorage.getItem("accessToken");
 const BLUE = "#1132d4";
 
@@ -32,7 +32,6 @@ const VARIANT_FIELDS = {
   laptop:     [{ key: "ram", label: "RAM", ph: "16 GB" }, { key: "storage", label: "Storage", ph: "512 GB SSD" }],
   tablet:     [{ key: "ram", label: "RAM", ph: "4 GB" }, { key: "storage", label: "Storage", ph: "64 GB" }, { key: "connectivity", label: "Connectivity", ph: "Wi-Fi Only" }],
   smartwatch: [{ key: "caseSize", label: "Case Size", ph: "44mm" }, { key: "connectivity", label: "Connectivity", ph: "GPS Only" }],
-  television: [{ key: "screenSize", label: "Screen Size", ph: "55\"" }, { key: "resolution", label: "Resolution", ph: "4K UHD" }],
 };
 
 const Spinner = ({ size = 14 }) => (

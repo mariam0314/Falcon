@@ -19,6 +19,14 @@ import {
   rejectDeletion,
 } from "../../../services/admin.api";
 import CatalogManager from "../components/Seller/CatalogManager";
+import AnalyticsTab from "../components/Marketplace/AnalyticsTab";
+import InventoryTab from "../components/Marketplace/InventoryTab";
+import SellingRequestsTab from "../components/Marketplace/SellingRequestsTab";
+import ExchangeRequestsTab from "../components/Marketplace/ExchangeRequestsTab";
+import InspectionsTab from "../components/Marketplace/InspectionsTab";
+import CouponsTab from "../components/Marketplace/CouponsTab";
+import CustomersTab from "../components/Marketplace/CustomersTab";
+import OrdersManagementTab from "../components/Marketplace/OrdersManagementTab";
 import { buildApiUrl, BASE_URL, SOCKET_URL } from "../../../services/api.config";
 
 // ─── Normalization ────────────────────────────────────────────────────────────
@@ -757,7 +765,7 @@ const ChatWindow = ({ seller, adminId, onBack }) => {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("subscriptions");
+  const [activeTab, setActiveTab] = useState("analytics");
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [modalState, setModalState] = useState({
     open: false,
@@ -971,16 +979,23 @@ export default function AdminDashboard() {
   };
 
   const NAV = [
+    { id: "analytics", label: "Analytics", icon: "📊" },
+    { id: "inventory", label: "Inventory", icon: "📱" },
+    { id: "orders", label: "Orders", icon: "📦" },
+    { id: "selling_requests", label: "Selling", icon: "🤝" },
+    { id: "exchange_requests", label: "Exchanges", icon: "🔄" },
+    { id: "inspections", label: "Inspections", icon: "🛡️" },
+    { id: "coupons", label: "Coupons", icon: "🎟️" },
+    { id: "customers", label: "Customers", icon: "👥" },
     { id: "subscriptions", label: "Sellers", icon: "◈" },
-    { id: "orders", label: "Orders", icon: "◎" },
     { id: "chats", label: "Chats", icon: "◉", badge: totalUnread },
+    { id: "catalog", label: "Catalog Config", icon: "☷" },
     {
       id: "deletions",
       label: "Deletions",
       icon: "🗑",
       badge: deletionRequests.length,
     },
-    { id: "catalog", label: "Catalog", icon: "☷" },
   ];
 
   return (
@@ -1126,6 +1141,41 @@ export default function AdminDashboard() {
 
         {/* ── Main content ── */}
         <main className="flex-1 min-w-0">
+          {/* ════ ANALYTICS ════ */}
+          {activeTab === "analytics" && (
+            <div className="fade-up">
+              <AnalyticsTab showToast={showToast} />
+            </div>
+          )}
+
+          {/* ════ REFURBISHED INVENTORY ════ */}
+          {activeTab === "inventory" && (
+            <div className="fade-up">
+              <InventoryTab showToast={showToast} />
+            </div>
+          )}
+
+          {/* ════ SELLING REQUESTS ════ */}
+          {activeTab === "selling_requests" && (
+            <div className="fade-up">
+              <SellingRequestsTab showToast={showToast} />
+            </div>
+          )}
+
+          {/* ════ EXCHANGE REQUESTS ════ */}
+          {activeTab === "exchange_requests" && (
+            <div className="fade-up">
+              <ExchangeRequestsTab showToast={showToast} />
+            </div>
+          )}
+
+          {/* ════ 32-POINT INSPECTIONS ════ */}
+          {activeTab === "inspections" && (
+            <div className="fade-up">
+              <InspectionsTab showToast={showToast} />
+            </div>
+          )}
+
           {/* ════ SUBSCRIPTIONS ════ */}
           {activeTab === "subscriptions" && (
             <div className="fade-up space-y-4 sm:space-y-5">
@@ -1465,175 +1515,24 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* ════ ORDERS ════ */}
+          {/* ════ ORDERS (7-STAGE LIFECYCLE) ════ */}
           {activeTab === "orders" && (
-            <div className="fade-up space-y-4 sm:space-y-5">
-              <div>
-                <h1
-                  className="text-xl sm:text-2xl font-extrabold text-slate-800"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-                >
-                  Orders Overview
-                </h1>
-                <p className="text-sm text-slate-400 mt-1">
-                  Platform-wide transaction summary and commission tracking
-                </p>
-              </div>
+            <div className="fade-up">
+              <OrdersManagementTab showToast={showToast} />
+            </div>
+          )}
 
-              {ordersError && (
-                <div className="bg-red-50 border border-red-200 text-red-600 rounded-2xl px-4 py-3 text-sm">
-                  ⚠ {ordersError}
-                </div>
-              )}
+          {/* ════ COUPONS ════ */}
+          {activeTab === "coupons" && (
+            <div className="fade-up">
+              <CouponsTab showToast={showToast} />
+            </div>
+          )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <StatCard
-                  label="Total Commission"
-                  value={`₹${commission.totalCommissionEarned.toLocaleString("en-IN")}`}
-                  color="text-emerald-700"
-                  bg="bg-emerald-50"
-                  border="border-emerald-100"
-                  loading={ordersLoading}
-                />
-                <StatCard
-                  label="Completed Orders"
-                  value={commission.totalCompletedOrders.toLocaleString()}
-                  color="text-[#1132d4]"
-                  bg="bg-blue-50"
-                  border="border-blue-100"
-                  loading={ordersLoading}
-                />
-                <StatCard
-                  label="Platform Sales"
-                  value={`₹${commission.totalPlatformSales.toLocaleString("en-IN")}`}
-                  color="text-amber-700"
-                  bg="bg-amber-50"
-                  border="border-amber-100"
-                  loading={ordersLoading}
-                />
-              </div>
-
-              {/* Desktop table */}
-              <div className="hidden lg:block bg-white rounded-2xl border border-slate-100 shadow-[0_2px_12px_rgba(17,50,212,0.05)] overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-100 bg-slate-50/80">
-                        {[
-                          "Order ID",
-                          "Type",
-                          "Buyer",
-                          "Seller",
-                          "Product",
-                          "Amount",
-                          "Commission",
-                          "Status",
-                          "Date",
-                        ].map((h) => (
-                          <th
-                            key={h}
-                            className="px-4 py-3 text-left text-xs font-bold text-slate-400 uppercase tracking-wider"
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ordersLoading
-                        ? Array.from({ length: 5 }).map((_, i) => (
-                            <SkeletonRow key={i} cols={9} />
-                          ))
-                        : orders.map((o, i) => (
-                            <tr
-                              key={o.id}
-                              className="row-hover border-b border-slate-50 last:border-0"
-                              style={{
-                                animation: `fadeUp 0.3s ease ${i * 0.04}s both`,
-                              }}
-                            >
-                              <td className="px-4 py-3.5 text-xs font-mono font-bold text-[#1132d4]">
-                                #{o.id?.slice(-8)}
-                              </td>
-                              <td className="px-4 py-3.5">
-                                <span
-                                  className={`text-xs font-bold px-2 py-0.5 rounded-full capitalize ${
-                                    o.transactionType === "sell"
-                                      ? "bg-purple-50 text-purple-700 border border-purple-200"
-                                      : "bg-blue-50 text-[#1132d4] border border-blue-200"
-                                  }`}
-                                >
-                                  {o.transactionType}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3.5 text-sm text-slate-600">
-                                {o.buyer}
-                              </td>
-                              <td className="px-4 py-3.5 text-sm text-slate-600">
-                                {o.seller}
-                              </td>
-                              <td className="px-4 py-3.5 text-sm font-medium text-slate-800 max-w-[140px] truncate">
-                                {o.product}
-                              </td>
-                              <td className="px-4 py-3.5 text-sm font-bold text-slate-700 font-mono">
-                                ₹{o.amount.toLocaleString("en-IN")}
-                              </td>
-                              <td className="px-4 py-3.5">
-                                {o.commissionEarned ? (
-                                  <span className="text-xs font-bold text-emerald-700 font-mono bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg">
-                                    ₹
-                                    {o.commissionAmount.toLocaleString("en-IN")}
-                                  </span>
-                                ) : (
-                                  <span className="text-xs text-slate-400 font-medium">
-                                    {[
-                                      "pending",
-                                      "confirmed",
-                                      "shipped",
-                                    ].includes(o.status)
-                                      ? "Pending delivery"
-                                      : "—"}
-                                  </span>
-                                )}
-                              </td>
-                              <td className="px-4 py-3.5">
-                                <StatusBadge status={o.status} />
-                              </td>
-                              <td className="px-4 py-3.5 text-xs text-slate-400 font-mono">
-                                {o.date}
-                              </td>
-                            </tr>
-                          ))}
-                    </tbody>
-                  </table>
-                </div>
-                {!ordersLoading && orders.length === 0 && (
-                  <div className="py-14 text-center">
-                    <span className="text-4xl block mb-3">◎</span>
-                    <p className="text-slate-500 font-semibold text-sm">
-                      No orders found
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Mobile order cards */}
-              <div className="lg:hidden space-y-3">
-                {ordersLoading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <SkeletonCard key={i} />
-                  ))
-                ) : orders.length === 0 ? (
-                  <div className="py-14 text-center bg-white rounded-2xl border border-slate-100">
-                    <span className="text-4xl block mb-3">◎</span>
-                    <p className="text-slate-500 font-semibold text-sm">
-                      No orders found
-                    </p>
-                  </div>
-                ) : (
-                  orders.map((o, i) => <OrderCard key={o.id} o={o} i={i} />)
-                )}
-              </div>
+          {/* ════ CUSTOMERS ════ */}
+          {activeTab === "customers" && (
+            <div className="fade-up">
+              <CustomersTab showToast={showToast} />
             </div>
           )}
 
@@ -1843,8 +1742,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── Bottom nav — mobile only ── */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-4px_16px_rgba(17,50,212,0.06)] z-30 lg:hidden">
-        <div className="flex items-center">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 shadow-[0_-4px_16px_rgba(17,50,212,0.06)] z-30 lg:hidden overflow-x-auto">
+        <div className="flex items-center min-w-max px-2">
           {NAV.map((item) => (
             <button
               key={item.id}
@@ -1852,23 +1751,23 @@ export default function AdminDashboard() {
                 setActiveTab(item.id);
                 if (item.id !== "chats") setChatView("list");
               }}
-              className={`flex-1 flex flex-col items-center gap-0.5 py-3 relative transition-all ${
+              className={`flex flex-col items-center gap-0.5 px-3.5 py-2.5 relative transition-all ${
                 activeTab === item.id ? "text-[#1132d4]" : "text-slate-400"
               }`}
             >
               <span
-                className={`text-xl leading-none transition-transform ${activeTab === item.id ? "scale-110" : ""}`}
+                className={`text-lg leading-none transition-transform ${activeTab === item.id ? "scale-110" : ""}`}
               >
                 {item.icon}
               </span>
-              <span className="text-[10px] font-semibold">{item.label}</span>
+              <span className="text-[10px] font-semibold whitespace-nowrap">{item.label}</span>
               {item.badge > 0 && (
-                <span className="absolute top-2 right-[calc(50%-16px)] w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-white">
+                <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border border-white">
                   {item.badge > 9 ? "9+" : item.badge}
                 </span>
               )}
               {activeTab === item.id && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[#1132d4] rounded-t-full" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-[#1132d4] rounded-t-full" />
               )}
             </button>
           ))}

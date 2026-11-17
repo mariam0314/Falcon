@@ -474,7 +474,6 @@ export default function NavBar() {
     "/laptops",
     "/tablets",
     "/smartwatches",
-    "/televisions",
     "/products",
     "/refurbished",
   ];

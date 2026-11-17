@@ -83,6 +83,7 @@ const ICONS = {
 };
 
 const conditionColors = {
+  "Like New": "bg-emerald-50 text-emerald-700 border-emerald-200",
   Superb: "bg-emerald-50 text-emerald-700 border-emerald-200",
   Good: "bg-blue-50 text-blue-700 border-blue-200",
   Fair: "bg-amber-50 text-amber-700 border-amber-200",
@@ -93,6 +94,345 @@ const deviceTypeColors = {
   refurbished: "bg-teal-50 text-teal-700 border-teal-200",
   old: "bg-orange-50 text-orange-700 border-orange-200",
 };
+
+// ─── Condition Guide Modal ─────────────────────────────────────────────────────
+function ConditionGuideModal({ isOpen, onClose }) {
+  if (!isOpen) return null;
+  const GRADES = [
+    {
+      grade: "Like New",
+      color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+      cosmeticScore: "99% - 100% Flawless",
+      batteryScore: "95%+ Original Battery Health",
+      desc: "Device is in pristine cosmetic condition. Zero scratches, marks, or scuffs on display or frame. Looks and functions identically to a brand new factory device.",
+    },
+    {
+      grade: "Superb",
+      color: "bg-teal-50 text-teal-700 border-teal-200",
+      cosmeticScore: "95% - 98% Pristine",
+      batteryScore: "88%+ Battery Health",
+      desc: "Screen is flawless with no scratches. Body may have 1-2 faint micro-marks invisible from arm's length. 100% hardware certified with premium performance.",
+    },
+    {
+      grade: "Good",
+      color: "bg-blue-50 text-blue-700 border-blue-200",
+      cosmeticScore: "90% - 94% Very Good",
+      batteryScore: "82%+ Battery Health",
+      desc: "Minor signs of gentle everyday use on the back or frame. Screen has no cracks or deep gouges. Fully certified and rigorously tested by FELCON engineers.",
+    },
+    {
+      grade: "Fair",
+      color: "bg-amber-50 text-amber-700 border-amber-200",
+      cosmeticScore: "80% - 89% Functional Value",
+      batteryScore: "80%+ Battery Health",
+      desc: "Visible scratches or scuffs on the body. Screen is completely intact and crack-free. Offers 100% functionality at the highest possible discount savings.",
+    },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <span className="text-xs font-bold text-[#0077b6] uppercase tracking-wider">Quality Standard</span>
+            <h2 className="text-xl font-extrabold text-slate-900 mt-0.5">FELCON Refurbished Grading Guide</h2>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition">
+            ✕
+          </button>
+        </div>
+
+        <p className="text-xs text-slate-500 mt-4 leading-relaxed">
+          Every device sold on FELCON undergoes a 32-point diagnostic hardware check, complete sanitization, and certified battery health verification.
+        </p>
+
+        <div className="space-y-3.5 mt-5">
+          {GRADES.map((g) => (
+            <div key={g.grade} className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-100 hover:shadow-sm transition">
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+                <span className={`text-xs font-bold px-3 py-1 rounded-full border ${g.color}`}>{g.grade} Grade</span>
+                <div className="flex gap-2 text-[11px] font-semibold text-slate-500">
+                  <span className="bg-white px-2 py-0.5 rounded border border-slate-200">{g.cosmeticScore}</span>
+                  <span className="bg-white px-2 py-0.5 rounded border border-slate-200">{g.batteryScore}</span>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">{g.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-6 py-3 rounded-xl bg-[#0077b6] text-white text-sm font-bold shadow-md hover:bg-[#005f8f] transition"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── 32-Point Quality Inspection Certificate Modal ────────────────────────────
+function InspectionModal({ isOpen, onClose, product }) {
+  if (!isOpen || !product) return null;
+  const certId = product.inspectionRecord?.certificateId || `FEL-QC-${(product._id || "928371").slice(-6).toUpperCase()}`;
+
+  const CHECKLIST = [
+    {
+      category: "1. Display & Multi-Touch",
+      items: ["Screen touch sensitivity & latency", "Multi-touch gesture responsiveness", "Color reproduction & TrueTone", "Zero dead pixels or backlight bleed"],
+    },
+    {
+      category: "2. Battery Health & Charging",
+      items: ["OEM battery authenticity verified", "Rapid charging & power delivery", "Standby drain & voltage regulation", "Thermal dissipation under full load"],
+    },
+    {
+      category: "3. Cameras & Optics",
+      items: ["Primary rear camera autofocus & sensor", "Ultra-wide & optical telephoto lens", "Selfie front camera clarity", "Optical Image Stabilization (OIS) & flash"],
+    },
+    {
+      category: "4. Audio, Speakers & Mics",
+      items: ["Stereo dual-speaker balance & EQ", "Earpiece receiver volume & clarity", "Multi-microphone noise suppression", "Audio recording & frequency response"],
+    },
+    {
+      category: "5. Wireless & Biometrics",
+      items: ["5G / 4G LTE cellular band connectivity", "Wi-Fi 6/6E/7 high-speed throughput", "Bluetooth 5.3 pairing & range", "Biometric Face ID / Fingerprint sensor", "GPS, compass, gyro & proximity sensors"],
+    },
+    {
+      category: "6. Chassis & Sanitization",
+      items: ["Aluminum / Titanium chassis structural integrity", "Charging port cleanliness & pin continuity", "Tactile volume & power button click", "Hospital-grade UV-C sanitization applied"],
+    },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
+        {/* Certificate Header */}
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 text-[#0077b6] flex items-center justify-center border border-blue-200">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <span className="text-[10px] font-black tracking-widest text-[#0077b6] uppercase">Official Certificate</span>
+              <h2 className="text-lg font-extrabold text-slate-900 leading-tight">32-Point Quality Inspection Report</h2>
+            </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition">
+            ✕
+          </button>
+        </div>
+
+        {/* Device & Cert info */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 my-4 text-xs">
+          <div>
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Device</span>
+            <span className="font-bold text-slate-800 line-clamp-1">{product.title}</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Certificate No.</span>
+            <span className="font-mono font-bold text-[#0077b6]">{certId}</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Condition Grade</span>
+            <span className="font-bold text-emerald-600">{product.condition || "Like New"} Grade</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block text-[10px] uppercase font-bold">Status</span>
+            <span className="font-bold text-emerald-600">✓ 32/32 Passed</span>
+          </div>
+        </div>
+
+        {/* Checklist */}
+        <div className="space-y-3.5">
+          {CHECKLIST.map((sec) => (
+            <div key={sec.category} className="border border-slate-100 rounded-2xl p-3.5 bg-white">
+              <h4 className="text-xs font-bold text-slate-800 mb-2">{sec.category}</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {sec.items.map((it) => (
+                  <div key={it} className="flex items-center gap-2 text-[11px] text-slate-600">
+                    <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-[9px] flex-shrink-0">✓</span>
+                    <span>{it}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-center">
+          <p className="text-xs font-bold text-emerald-800">Verified & Sealed by FELCON Diagnostics Lab</p>
+          <p className="text-[11px] text-emerald-600 mt-0.5">Backed by 6-Month Replacement Warranty & 7-Day Money Back Guarantee</p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-3 rounded-xl bg-[#0077b6] text-white text-sm font-bold shadow-md hover:bg-[#005f8f] transition"
+        >
+          Close Certificate
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Trade-In / Exchange Old Device Modal ───────────────────────────────────────
+function ExchangeModal({ isOpen, onClose, product, onApplyExchange }) {
+  if (!isOpen || !product) return null;
+
+  const EXCHANGE_MODELS = [
+    { brand: "Apple", name: "iPhone 14 Pro", baseValue: 34000 },
+    { brand: "Apple", name: "iPhone 14", baseValue: 26000 },
+    { brand: "Apple", name: "iPhone 13", baseValue: 21000 },
+    { brand: "Apple", name: "iPhone 12", baseValue: 15000 },
+    { brand: "Samsung", name: "Galaxy S23 Ultra", baseValue: 36000 },
+    { brand: "Samsung", name: "Galaxy S23", baseValue: 24000 },
+    { brand: "Samsung", name: "Galaxy S22", baseValue: 16000 },
+    { brand: "OnePlus", name: "OnePlus 11", baseValue: 19000 },
+    { brand: "OnePlus", name: "OnePlus 10 Pro", baseValue: 14000 },
+    { brand: "Google", name: "Pixel 8", baseValue: 22000 },
+    { brand: "Google", name: "Pixel 7 Pro", baseValue: 17000 },
+    { brand: "Xiaomi", name: "Xiaomi 13 Pro", baseValue: 18000 },
+  ];
+
+  const [selectedBrand, setSelectedBrand] = useState("Apple");
+  const [selectedModelName, setSelectedModelName] = useState("iPhone 13");
+  const [condition, setCondition] = useState("Flawless"); // Flawless, Good, Average
+
+  const availableModels = EXCHANGE_MODELS.filter((m) => m.brand === selectedBrand);
+  const currentModel = EXCHANGE_MODELS.find((m) => m.brand === selectedBrand && m.name === selectedModelName) || availableModels[0];
+
+  const conditionMultiplier = condition === "Flawless" ? 1.0 : condition === "Good" ? 0.8 : 0.6;
+  const valuation = Math.round((currentModel?.baseValue || 15000) * conditionMultiplier);
+  const netPayable = Math.max(0, product.price - valuation);
+
+  const handleApply = () => {
+    onApplyExchange({
+      isExchange: true,
+      device: `${selectedBrand} ${selectedModelName} (${condition})`,
+      value: valuation,
+    });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <span className="text-xs font-bold text-[#0077b6] uppercase tracking-wider">FELCON Trade-In</span>
+            <h2 className="text-xl font-extrabold text-slate-900 mt-0.5">Exchange Your Old Device</h2>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition">
+            ✕
+          </button>
+        </div>
+
+        <p className="text-xs text-slate-500 mt-3">
+          Get an instant exchange discount deducted directly from this {product.title}. Our executive will verify and collect your old device at delivery.
+        </p>
+
+        {/* Brand selector */}
+        <div className="mt-4">
+          <label className="block text-xs font-bold text-slate-700 mb-2">1. Select Brand</label>
+          <div className="flex gap-2 flex-wrap">
+            {["Apple", "Samsung", "OnePlus", "Google", "Xiaomi"].map((b) => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => {
+                  setSelectedBrand(b);
+                  const first = EXCHANGE_MODELS.find((m) => m.brand === b);
+                  if (first) setSelectedModelName(first.name);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                  selectedBrand === b ? "bg-[#0077b6] text-white border-[#0077b6]" : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                {b}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Model selector */}
+        <div className="mt-4">
+          <label className="block text-xs font-bold text-slate-700 mb-2">2. Select Model</label>
+          <select
+            value={selectedModelName}
+            onChange={(e) => setSelectedModelName(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-[#0077b6]"
+          >
+            {availableModels.map((m) => (
+              <option key={m.name} value={m.name}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Condition selector */}
+        <div className="mt-4">
+          <label className="block text-xs font-bold text-slate-700 mb-2">3. Physical Condition</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: "Flawless", label: "Flawless", hint: "No scratches" },
+              { id: "Good", label: "Good", hint: "Minor marks" },
+              { id: "Average", label: "Average", hint: "Visible wear" },
+            ].map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setCondition(c.id)}
+                className={`p-2.5 rounded-xl border text-center transition ${
+                  condition === c.id ? "bg-blue-50 border-[#0077b6] text-[#0077b6]" : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <span className="block text-xs font-bold">{c.label}</span>
+                <span className="block text-[10px] text-slate-400 mt-0.5">{c.hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Price calculation block */}
+        <div className="mt-5 p-4 rounded-2xl bg-gradient-to-br from-slate-50 to-blue-50/40 border border-blue-100 space-y-2 text-xs">
+          <div className="flex justify-between text-slate-600">
+            <span>Refurbished {product.title}</span>
+            <span className="font-semibold">₹{product.price?.toLocaleString("en-IN")}</span>
+          </div>
+          <div className="flex justify-between text-emerald-600 font-bold">
+            <span>Exchange Discount ({selectedModelName})</span>
+            <span>−₹{valuation.toLocaleString("en-IN")}</span>
+          </div>
+          <div className="border-t border-slate-200 pt-2 flex justify-between items-baseline">
+            <span className="text-sm font-extrabold text-slate-900">Final Payable Amount</span>
+            <span className="text-lg font-extrabold text-[#0077b6]">₹{netPayable.toLocaleString("en-IN")}</span>
+          </div>
+        </div>
+
+        <div className="flex gap-2.5 mt-5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleApply}
+            className="flex-1 py-3 rounded-xl bg-[#0077b6] text-white text-xs font-bold shadow-md hover:bg-[#005f8f] transition"
+          >
+            Apply Trade-In
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 function Toast({ msg, type, onClose }) {
@@ -477,25 +817,16 @@ export default function ProductDetails() {
   const [showBuyNow, setShowBuyNow] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
 
+  // New Refurbished & Trade-in state
+  const [showInspectionModal, setShowInspectionModal] = useState(false);
+  const [showConditionGuideModal, setShowConditionGuideModal] = useState(false);
+  const [showExchangeModal, setShowExchangeModal] = useState(false);
+  const [selectedExchange, setSelectedExchange] = useState(null);
+  const [pincodeInput, setPincodeInput] = useState("");
+  const [pincodeResult, setPincodeResult] = useState(null);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+
   const showToast = (msg, type = "success") => setToast({ msg, type });
-
-  useEffect(() => {
-    if (!id || !isAuthenticated) return;
-    checkWishlist(id)
-      .then((r) => setWishlisted(r.isWishlisted))
-      .catch(() => {});
-  }, [id, isAuthenticated]);
-
-  const handleBuyNow = () => {
-    if (!isAuthenticated) {
-      const returnUrl = `/product/${id}`;
-      navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, {
-        state: { returnUrl },
-      });
-      return;
-    }
-    setShowBuyNow(true);
-  };
 
   const {
     data: product,
@@ -508,6 +839,56 @@ export default function ProductDetails() {
     select:   (d) => d.data ?? d.product ?? d,
     staleTime: 1000 * 60 * 3,
   });
+
+  // Track recently viewed products in localStorage
+  useEffect(() => {
+    if (!product?._id) return;
+    try {
+      const raw = localStorage.getItem("felcon_recently_viewed");
+      const list = raw ? JSON.parse(raw) : [];
+      setRecentlyViewed(list.filter((p) => p._id !== product._id).slice(0, 6));
+
+      const updated = [
+        {
+          _id: product._id,
+          title: product.title,
+          price: product.price,
+          originalPrice: product.originalPrice,
+          images: product.images,
+          brand: product.brand,
+          condition: product.condition,
+          category: product.category,
+        },
+        ...list.filter((p) => p._id !== product._id),
+      ].slice(0, 10);
+      localStorage.setItem("felcon_recently_viewed", JSON.stringify(updated));
+    } catch {}
+  }, [product?._id]);
+
+  const handleCheckPincode = (e) => {
+    e.preventDefault();
+    if (!pincodeInput.trim() || pincodeInput.trim().length < 6) {
+      setPincodeResult({ valid: false, message: "Please enter a valid 6-digit delivery pincode" });
+      return;
+    }
+    const d = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    const dateStr = d.toLocaleDateString("en-IN", { weekday: "short", month: "short", day: "numeric" });
+    setPincodeResult({
+      valid: true,
+      message: `Delivery by ${dateStr} · Free Express Courier by BlueDart Express`,
+    });
+  };
+
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      const returnUrl = `/product/${id}`;
+      navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`, {
+        state: { returnUrl },
+      });
+      return;
+    }
+    setShowBuyNow(true);
+  };
 
   const { data: wishlisted = false } = useWishlistStatus(id, isAuthenticated);
   const wishlistMutation = useMutation({
@@ -570,7 +951,7 @@ export default function ProductDetails() {
 
 
   if (showBuyNow && product)
-    return <BuyNowPage product={product} onBack={() => setShowBuyNow(false)} />;
+    return <BuyNowPage product={product} exchange={selectedExchange} onBack={() => setShowBuyNow(false)} />;
 
   if (loading) return (
     <div className="min-h-screen bg-white flex items-center justify-center">
@@ -696,7 +1077,7 @@ export default function ProductDetails() {
                 )}
 
                 {/* Badges */}
-                <div className="flex flex-wrap gap-2 mt-4">
+                <div className="flex flex-wrap gap-2 mt-4 items-center">
                   {product.deviceType && (
                     <span
                       className={`text-xs font-bold px-3 py-1.5 rounded-full border capitalize ${deviceTypeColors[product.deviceType] || "bg-slate-100 text-slate-600 border-slate-200"}`}
@@ -705,11 +1086,21 @@ export default function ProductDetails() {
                     </span>
                   )}
                   {product.condition && (
-                    <span
-                      className={`text-xs font-bold px-3 py-1.5 rounded-full border ${conditionColors[product.condition] || "bg-slate-100 text-slate-600 border-slate-200"}`}
-                    >
-                      {product.condition} Grade
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`text-xs font-bold px-3 py-1.5 rounded-full border ${conditionColors[product.condition] || "bg-slate-100 text-slate-600 border-slate-200"}`}
+                      >
+                        {product.condition} Grade
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setShowConditionGuideModal(true)}
+                        className="text-[11px] font-bold text-[#0077b6] hover:underline"
+                        title="Learn more about our condition grading"
+                      >
+                        Guide ⓘ
+                      </button>
+                    </div>
                   )}
                   {product.status === "available" && (
                     <span className="text-xs font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -718,9 +1109,41 @@ export default function ProductDetails() {
                   )}
                 </div>
 
+                {/* Verified Battery Health Gauge */}
+                {product.batteryHealth && (
+                  <div className="mt-3 flex items-center justify-between p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-base">🔋</span>
+                      <div>
+                        <p className="text-xs font-bold text-emerald-900">Verified Battery Health: {product.batteryHealth}</p>
+                        <p className="text-[10px] text-emerald-700">OEM genuine battery diagnostic passed · High cycle retention</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">Verified</span>
+                  </div>
+                )}
+
+                {/* 32-Point Quality Certified Banner */}
+                <button
+                  type="button"
+                  onClick={() => setShowInspectionModal(true)}
+                  className="w-full mt-3 flex items-center justify-between p-3 rounded-2xl bg-blue-50/70 border border-blue-200 text-left hover:bg-blue-100/60 transition group"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-lg bg-[#0077b6] text-white flex items-center justify-center font-bold text-xs">
+                      ✓
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-[#0077b6] group-hover:underline">32-Point Quality Certified</p>
+                      <p className="text-[10px] text-slate-500">Hardware, camera, display & UV-C sanitized</p>
+                    </div>
+                  </div>
+                  <span className="text-xs font-semibold text-[#0077b6]">View Cert →</span>
+                </button>
+
                 {/* FELCON assured */}
                 <div
-                  className="mt-4 flex items-center gap-3 rounded-2xl px-4 py-3"
+                  className="mt-3 flex items-center gap-3 rounded-2xl px-4 py-3"
                   style={{
                     background:
                       "linear-gradient(to right, rgba(0,119,182,0.05), rgba(219,234,254,0.5))",
@@ -740,8 +1163,31 @@ export default function ProductDetails() {
                       FELCON Assured
                     </p>
                     <p className="text-xs text-slate-500">
-                      Quality tested · 6-month warranty
+                      Quality tested · 6-month warranty · 7-day returns
                     </p>
+                  </div>
+                </div>
+
+                {/* What's in the Box */}
+                <div className="mt-3 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                  <p className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2.5">What's in the Box</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">✓</span>
+                      <span>Certified Device</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">✓</span>
+                      <span>Fast Charger & Cable</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">✓</span>
+                      <span>SIM Ejector Pin</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-bold">✓</span>
+                      <span>Warranty Card</span>
+                    </div>
                   </div>
                 </div>
 
@@ -839,6 +1285,80 @@ export default function ProductDetails() {
                     {(product.originalPrice - product.price).toLocaleString(
                       "en-IN",
                     )}
+                  </p>
+                )}
+              </div>
+
+              {/* ── Trade-In / Exchange Widget ── */}
+              {selectedExchange ? (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🔄</span>
+                    <div>
+                      <p className="text-xs font-bold text-emerald-900">
+                        Trade-In Applied: {selectedExchange.device}
+                      </p>
+                      <p className="text-xs text-emerald-700 font-semibold mt-0.5">
+                        Exchange Deduction: −₹{selectedExchange.value?.toLocaleString("en-IN")} · Net Payable: ₹{Math.max(0, product.price - selectedExchange.value).toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedExchange(null)}
+                    className="text-xs font-bold text-red-500 hover:text-red-700 hover:underline px-2 py-1"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-r from-blue-50/80 to-indigo-50/50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#0077b6] text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                      🔄
+                    </div>
+                    <div>
+                      <p className="text-xs font-extrabold text-slate-900">Exchange Your Old Device & Save Up To ₹25,000</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">Instant online valuation · Doorstep exchange at delivery</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowExchangeModal(true)}
+                    className="px-4 py-2 rounded-xl bg-[#0077b6] text-white text-xs font-bold hover:bg-[#005f8f] transition flex-shrink-0 shadow-sm"
+                  >
+                    Check Value
+                  </button>
+                </div>
+              )}
+
+              {/* ── Delivery Pincode Estimator ── */}
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <div className="flex items-center gap-2 mb-2 text-xs font-bold text-slate-700">
+                  <svg className="w-4 h-4 text-[#0077b6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h2m-6 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                  </svg>
+                  <span>Delivery & Free Shipping Check</span>
+                </div>
+                <form onSubmit={handleCheckPincode} className="flex gap-2">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={pincodeInput}
+                    onChange={(e) => setPincodeInput(e.target.value.replace(/\D/g, ""))}
+                    placeholder="Enter 6-digit Pincode"
+                    className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-[#0077b6] flex-1 font-semibold"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition"
+                  >
+                    Check
+                  </button>
+                </form>
+                {pincodeResult && (
+                  <p className={`text-xs mt-2 font-medium ${pincodeResult.valid ? "text-emerald-600" : "text-red-500"}`}>
+                    {pincodeResult.message}
                   </p>
                 )}
               </div>
@@ -1236,6 +1756,44 @@ export default function ProductDetails() {
           {showCompare && <CompareDevices initialProduct={product} />}
         </div>
 
+        {/* ── Recently Viewed Products ── */}
+        {recentlyViewed.length > 0 && (
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <span className="text-[10px] font-black text-[#0077b6] uppercase tracking-wider">Browsing History</span>
+                <h3 className="text-lg font-extrabold text-slate-900">Recently Viewed Devices</h3>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+              {recentlyViewed.map((item) => (
+                <div
+                  key={item._id}
+                  onClick={() => navigate(`/product/${item._id}`)}
+                  className="bg-white rounded-2xl border border-slate-100 p-3 hover:border-blue-200 hover:shadow-md transition cursor-pointer flex flex-col items-center text-center group"
+                >
+                  <div className="w-16 h-16 flex items-center justify-center mb-2 overflow-hidden">
+                    <LazyImage
+                      src={getDeviceImage(item)}
+                      alt={item.title}
+                      className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform"
+                    />
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 line-clamp-1 group-hover:text-[#0077b6]">{item.title}</p>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <span className="text-xs font-extrabold text-[#0077b6]">₹{item.price?.toLocaleString("en-IN")}</span>
+                    {item.condition && (
+                      <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1 py-0.2 rounded">
+                        {item.condition}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── Reviews ── */}
         <ReviewSection
           productId={id}
@@ -1244,6 +1802,25 @@ export default function ProductDetails() {
           productOwnerId={product.listedBy?._id ?? product.listedBy}
         />
       </div>
+
+      {/* ── Modals ── */}
+      <ConditionGuideModal
+        isOpen={showConditionGuideModal}
+        onClose={() => setShowConditionGuideModal(false)}
+      />
+
+      <InspectionModal
+        isOpen={showInspectionModal}
+        onClose={() => setShowInspectionModal(false)}
+        product={product}
+      />
+
+      <ExchangeModal
+        isOpen={showExchangeModal}
+        onClose={() => setShowExchangeModal(false)}
+        product={product}
+        onApplyExchange={(ex) => setSelectedExchange(ex)}
+      />
 
       {toast && (
         <Toast

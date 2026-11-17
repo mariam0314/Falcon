@@ -1304,7 +1304,6 @@ const REFURBISHED_CATEGORIES = [
   { id: "laptop", label: "Laptops" },
   { id: "tablet", label: "Tablets" },
   { id: "smartwatch", label: "Smartwatches" },
-  { id: "television", label: "Televisions" },
 ];
 
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────────

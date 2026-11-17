@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaTwitter, FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 
 const footerSections = [
-  { title: "Services", links: ["Sell Phone", "Sell Television", "Sell Smart Watch", "Sell Smart Speakers", "Sell DSLR Camera", "Sell Earbuds", "Repair Phone", "Buy Gadgets", "Recycle Phone", "Find New Phone", "Partner With Us"] },
+  { title: "Services", links: ["Sell Phone", "Sell Laptop", "Sell Tablet", "Sell Smart Watch", "Sell Smart Speakers", "Sell DSLR Camera", "Sell Earbuds", "Repair Phone", "Buy Gadgets", "Recycle Phone", "Find New Phone", "Partner With Us"] },
   { title: "Company", links: ["About Us", "Careers", "Articles", "Press Releases", "Become FELCON Partner", "Become Supersale Partner", "Corporate Information"] },
   { title: "Sell Device", links: ["Mobile Phone", "Laptop", "Tablet", "iMac", "Gaming Consoles"] },
   { title: "Help & Support", links: ["FAQ", "Contact Us", "Warranty Policy", "Refund Policy"] },

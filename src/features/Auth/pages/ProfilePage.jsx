@@ -532,6 +532,11 @@ function MyListingsPanel({ showToast }) {
             (listing.pickup?.proposedSlots?.length ?? 0) === 0;
           const isAvailable = listing.status === "available";
           const isCancelled = listing.status === "cancelled";
+          const isSold = listing.status === "completed" || listing.status === "sold";
+          const isInspected = listing.status === "inspected" || listing.pickup?.status === "completed";
+          const isAssigned = listing.status === "accepted" || listing.pickup?.status === "agent_assigned" || isScheduled;
+          const sellStepIdx = isSold ? 3 : isInspected ? 2 : isAssigned ? 1 : 0;
+          const sellStageLabel = isSold ? "Instant Cash Paid" : isInspected ? "Device Inspected" : isAssigned ? "Agent Assigned" : "Pickup Scheduled";
 
           return (
             <div
@@ -650,6 +655,16 @@ function MyListingsPanel({ showToast }) {
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
+                  {/* Request ID & Tag */}
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="font-mono text-[11px] font-bold text-[#1132d4] bg-blue-50 border border-blue-200/80 px-2 py-0.5 rounded-md">
+                      {listing.requestId || (listing._id ? `FEL-SELL-${listing._id.slice(-6).toUpperCase()}` : "FEL-SELL")}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Doorstep Pickup
+                    </span>
+                  </div>
+
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-bold text-slate-800 truncate">
                       {listing.brand} {listing.model}
@@ -751,6 +766,77 @@ function MyListingsPanel({ showToast }) {
                       : ""} noted:{" "}
                     {listing.evaluation.defects.map((d) => d.label).join(", ")}
                   </p>
+                </div>
+              )}
+
+              {/* ── Doorstep Pickup appointment info ── */}
+              {(listing.pickup?.date || listing.pickup?.confirmedSlot?.date || listing.pickup?.address || listing.pickupAddress) && (
+                <div className="mx-4 my-2 p-3 bg-slate-50 border border-slate-100 rounded-xl text-xs space-y-1.5">
+                  <div className="flex items-center justify-between text-slate-700">
+                    <span className="font-semibold text-slate-500">📅 Pickup Slot:</span>
+                    <span className="font-bold text-slate-800">
+                      {listing.pickup?.date || listing.pickup?.confirmedSlot?.date || "Tomorrow"} · {listing.pickup?.timeRange || listing.pickup?.confirmedSlot?.timeRange || "10:00 AM - 01:00 PM"}
+                    </span>
+                  </div>
+                  {(listing.pickup?.address || listing.pickupAddress) && (
+                    <div className="flex items-start justify-between text-slate-700 pt-1 border-t border-slate-200/60">
+                      <span className="font-semibold text-slate-500">📍 Pickup Address:</span>
+                      <span className="font-medium text-slate-800 text-right max-w-[260px] truncate">
+                        {[listing.pickup?.address || listing.pickupAddress, listing.pickup?.city, listing.pickup?.pincode].filter(Boolean).join(", ")}
+                      </span>
+                    </div>
+                  )}
+                  {(listing.pickup?.contactName || listing.contactName) && (
+                    <div className="flex items-center justify-between text-slate-700 pt-1 border-t border-slate-200/60">
+                      <span className="font-semibold text-slate-500">👤 Contact:</span>
+                      <span className="font-medium text-slate-800">
+                        {listing.pickup?.contactName || listing.contactName} ({listing.pickup?.contactPhone || listing.contactPhone})
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── 4-Stage Doorstep Selling Lifecycle Stepper ── */}
+              {!isCancelled && (
+                <div className="px-4 py-3 bg-slate-50/70 border-t border-slate-100">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-2.5">
+                    <span>Doorstep Selling Status</span>
+                    <span className="font-bold text-[#1132d4]">
+                      {sellStageLabel}
+                    </span>
+                  </div>
+                  <div className="relative mx-1 mb-1">
+                    <div className="absolute top-2 left-2 right-2 h-0.5 bg-slate-200 rounded-full" />
+                    <div
+                      className="absolute top-2 left-2 h-0.5 bg-[#1132d4] rounded-full transition-all duration-500"
+                      style={{ width: `${(sellStepIdx / 3) * 100}%` }}
+                    />
+                    <div className="relative flex justify-between">
+                      {["Scheduled", "Agent Assigned", "Inspected", "Cash Paid"].map((step, idx) => {
+                        const isDone = sellStepIdx >= idx;
+                        const isCurr = sellStepIdx === idx;
+                        return (
+                          <div key={step} className="flex flex-col items-center">
+                            <div
+                              className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold z-10 transition-all ${
+                                isCurr
+                                  ? "bg-[#1132d4] text-white ring-2 ring-[#1132d4]/30"
+                                  : isDone
+                                    ? "bg-[#1132d4] text-white"
+                                    : "bg-white border border-slate-300 text-slate-400"
+                              }`}
+                            >
+                              {isDone ? "✓" : idx + 1}
+                            </div>
+                            <span className={`text-[9px] mt-1 ${isCurr ? "font-bold text-[#1132d4]" : isDone ? "font-semibold text-slate-700" : "text-slate-400"}`}>
+                              {step}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1572,39 +1658,71 @@ export default function ProfilePage() {
   );
 }
 
-// ─── Order status config ──────────────────────────────────────────────────────
+// ─── Order status config (Cashify 7-Stage Refurbished Order Tracking) ────────
 const ORDER_STATUS = {
-  pending: {
-    pill: "bg-amber-50 text-amber-700 border-amber-200",
-    dot: "bg-amber-400",
-    bar: "bg-amber-400",
-    label: "Pending",
-    desc: "Waiting for seller confirmation",
-    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-  },
   confirmed: {
     pill: "bg-blue-50 text-blue-700 border-blue-200",
     dot: "bg-blue-500",
     bar: "bg-blue-500",
     label: "Confirmed",
-    desc: "Seller confirmed your order",
+    desc: "Order confirmed & verified by FELCON",
     icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+  },
+  processing: {
+    pill: "bg-sky-50 text-sky-700 border-sky-200",
+    dot: "bg-sky-500",
+    bar: "bg-sky-500",
+    label: "Processing",
+    desc: "Refurbishment hub preparing device",
+    icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15",
+  },
+  quality_check: {
+    pill: "bg-teal-50 text-teal-700 border-teal-200",
+    dot: "bg-teal-500",
+    bar: "bg-teal-500",
+    label: "Quality Check",
+    desc: "32-point diagnostics & UV sanitization",
+    icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z",
+  },
+  packed: {
+    pill: "bg-purple-50 text-purple-700 border-purple-200",
+    dot: "bg-purple-500",
+    bar: "bg-purple-500",
+    label: "Packed",
+    desc: "Sealed in tamper-proof FELCON eco box",
+    icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
   },
   shipped: {
     pill: "bg-indigo-50 text-indigo-700 border-indigo-200",
     dot: "bg-indigo-500",
     bar: "bg-indigo-500",
     label: "Shipped",
-    desc: "Your order is on the way",
+    desc: "Handed over to BlueDart Express",
     icon: "M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0",
+  },
+  out_for_delivery: {
+    pill: "bg-amber-50 text-amber-700 border-amber-200",
+    dot: "bg-amber-500",
+    bar: "bg-amber-500",
+    label: "Out for Delivery",
+    desc: "Executive out for doorstep delivery",
+    icon: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z",
   },
   delivered: {
     pill: "bg-emerald-50 text-emerald-700 border-emerald-200",
     dot: "bg-emerald-500",
     bar: "bg-emerald-500",
     label: "Delivered",
-    desc: "Order delivered successfully",
+    desc: "Device delivered successfully",
     icon: "M5 13l4 4L19 7",
+  },
+  pending: {
+    pill: "bg-slate-100 text-slate-700 border-slate-200",
+    dot: "bg-slate-400",
+    bar: "bg-slate-400",
+    label: "Pending",
+    desc: "Order waiting to be verified",
+    icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
   },
   cancelled: {
     pill: "bg-red-50 text-red-600 border-red-200",
@@ -1619,13 +1737,21 @@ const ORDER_STATUS = {
     dot: "bg-slate-400",
     bar: "bg-slate-400",
     label: "Rejected",
-    desc: "Seller rejected this order",
+    desc: "Order request rejected",
     icon: "M6 18L18 6M6 6l12 12",
   },
 };
 
-// Progress steps — the happy path. Cancelled/rejected break out of this flow.
-const PROGRESS_STEPS = ["pending", "confirmed", "shipped", "delivered"];
+// Progress steps — Cashify 7-stage order lifecycle
+const PROGRESS_STEPS = [
+  "confirmed",
+  "processing",
+  "quality_check",
+  "packed",
+  "shipped",
+  "out_for_delivery",
+  "delivered"
+];
 
 // ─── Order detail modal ───────────────────────────────────────────────────────
 function OrderDetailModal({ order, onClose, onCancelled }) {
@@ -1788,8 +1914,8 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
                     return (
                       <div
                         key={step}
-                        className="flex flex-col items-center gap-1.5"
-                        style={{ width: "25%" }}
+                        className="flex flex-col items-center gap-1.5 flex-1 min-w-0"
+                        style={{ width: `${100 / PROGRESS_STEPS.length}%` }}
                       >
                         <div
                           className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all z-10 ${
@@ -1819,8 +1945,9 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
                           )}
                         </div>
                         <p
-                          className={`text-center leading-tight ${current ? "font-bold text-slate-800" : done ? "font-semibold text-slate-600" : "font-medium text-slate-400"}`}
-                          style={{ fontSize: "10px" }}
+                          className={`text-center leading-tight truncate px-0.5 ${current ? "font-bold text-slate-800" : done ? "font-semibold text-slate-600" : "font-medium text-slate-400"}`}
+                          style={{ fontSize: "9px" }}
+                          title={scfg.label}
                         >
                           {scfg.label}
                         </p>
@@ -1868,6 +1995,75 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
                   </p>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Courier & Tracking info */}
+          {order.courier && (
+            <div className="bg-blue-50/70 rounded-2xl border border-blue-200/80 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                  <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
+                    Courier &amp; Delivery Tracking
+                  </span>
+                </div>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                  {order.courier.partner || "BlueDart Express"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                <div>
+                  <p className="text-slate-500 font-medium">Tracking / AWB Number</p>
+                  <p className="text-slate-900 font-mono font-bold mt-0.5 select-all">
+                    {order.courier.trackingId || `FEL-TRK-${order._id?.slice(-8).toUpperCase()}`}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-slate-500 font-medium">Estimated Delivery</p>
+                  <p className="text-emerald-700 font-bold mt-0.5">
+                    {order.courier.estimatedDelivery ? fmtDate(order.courier.estimatedDelivery) : "3-5 Business Days"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Shipping Address */}
+          {order.shippingAddress && (
+            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Ic d={I.map} className="w-4 h-4 text-blue-600" />
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Shipping Destination
+                </span>
+              </div>
+              <p className="text-xs font-bold text-slate-800">
+                {order.shippingAddress.name} · <span className="font-normal text-slate-500">{order.shippingAddress.phone}</span>
+              </p>
+              <p className="text-xs text-slate-600 mt-1">
+                {[order.shippingAddress.address || order.shippingAddress.street, order.shippingAddress.city, order.shippingAddress.pincode].filter(Boolean).join(", ")}
+              </p>
+            </div>
+          )}
+
+          {/* Trade-In Applied banner */}
+          {order.exchange?.isExchange && (
+            <div className="bg-emerald-50 rounded-2xl border border-emerald-200 p-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-extrabold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="text-sm">🔄</span> Device Exchange Trade-In Applied
+                </span>
+                <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                  −{fmt(order.exchange.value)}
+                </span>
+              </div>
+              <p className="text-xs text-emerald-900 font-semibold">
+                {order.exchange.brand} {order.exchange.model} ({order.exchange.condition} condition)
+              </p>
+              <p className="text-[11px] text-emerald-700 mt-0.5">
+                Hand over this device to the courier partner upon delivery of your order.
+              </p>
             </div>
           )}
 
@@ -1924,6 +2120,16 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
             </p>
             {[
               { label: "Product Price", value: fmt(order.salePrice) },
+              order.exchange?.isExchange && {
+                label: `Exchange Trade-In (${order.exchange.brand} ${order.exchange.model})`,
+                value: `−${fmt(order.exchange.value)}`,
+                highlight: "text-emerald-600 font-bold",
+              },
+              order.coupon?.code && {
+                label: `Coupon (${order.coupon.code})`,
+                value: `−${fmt(order.coupon.discountAmount)}`,
+                highlight: "text-emerald-600 font-bold",
+              },
               {
                 label: "Commission",
                 value: order.commissionAmount
@@ -1932,8 +2138,9 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
               },
               { label: "Seller Receives", value: fmt(order.sellerEarnings) },
             ]
+              .filter(Boolean)
               .filter((r) => r.value)
-              .map(({ label, value }) => (
+              .map(({ label, value, highlight }) => (
                 <div
                   key={label}
                   className="flex items-center justify-between px-4 py-2.5 border-t border-slate-100 first:border-0"
@@ -1941,7 +2148,7 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
                   <span className="text-xs text-slate-500 font-medium">
                     {label}
                   </span>
-                  <span className="text-xs text-slate-800 font-semibold">
+                  <span className={`text-xs font-semibold ${highlight || "text-slate-800"}`}>
                     {value}
                   </span>
                 </div>
@@ -1951,7 +2158,7 @@ function OrderDetailModal({ order, onClose, onCancelled }) {
                 Total Paid
               </span>
               <span className="text-sm font-extrabold text-[#1132d4]">
-                {fmt(order.salePrice)}
+                {fmt(order.finalPayable ?? order.salePrice)}
               </span>
             </div>
           </div>

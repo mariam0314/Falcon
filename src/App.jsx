@@ -15,13 +15,11 @@ import {
   LaptopsPage,
   TabletsPage,
   SmartwatchPage,
-  TVPage,
   RefurbishedPage,
   ProductsPage,
 } from "./features/Products/pages/Devicepages";
 import SellPhones from "./features/User-Sell/pages/SellPhones";
 import SellTablets from "./features/User-Sell/pages/SellTablets";
-import SellTelevisions from "./features/User-Sell/pages/SellTelevisions";
 import SellSmartwatchs from "./features/User-Sell/pages/SellSmartwatchs";
 import SellLaptops from "./features/User-Sell/pages/SellLaptops";
 import SelectModel from "./features/User-Sell/components/SelectModel";
@@ -333,14 +331,6 @@ export default function App() {
                       }
                     />
                     <Route
-                      path="/televisions"
-                      element={
-                        <MainLayout>
-                          <TVPage />
-                        </MainLayout>
-                      }
-                    />
-                    <Route
                       path="/nearby-devices"
                       element={
                         <BareLayout>
@@ -389,10 +379,6 @@ export default function App() {
                               <Route
                                 path="smartwatch"
                                 element={<SellSmartwatchs />}
-                              />
-                              <Route
-                                path="television"
-                                element={<SellTelevisions />}
                               />
                               <Route
                                 path="variant"

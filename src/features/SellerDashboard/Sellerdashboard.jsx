@@ -111,7 +111,7 @@ const LISTING_STATUS = {
   },
 };
 
-const CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch", "television"];
+const CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch"];
 const DEVICE_TYPES = ["new", "refurbished", "old"];
 const CONDITIONS = ["Fair", "Good", "Superb"];
 
@@ -1107,7 +1107,7 @@ const DeviceListingCard = memo(
 DeviceListingCard.displayName = "DeviceListingCard";
 
 // ─── DeviceListingsSection ────────────────────────────────────────────────────
-const LISTING_CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch", "television"];
+const LISTING_CATEGORIES = ["mobile", "laptop", "tablet", "smartwatch"];
 
 const DeviceListingsSection = ({ isSuperSeller }) => {
   const [availableListings, setAvailableListings] = useState([]);

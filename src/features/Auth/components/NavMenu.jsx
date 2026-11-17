@@ -68,7 +68,6 @@ export default function NavMenu({
         { label: "Laptop", route: "/sell/laptops" },
         { label: "Smartwatch", route: "/sell/smartwatch" },
         { label: "Tablet", route: "/sell/tablet" },
-        { label: "Television", route: "/sell/television" },
       ],
     },
     {
@@ -83,7 +82,6 @@ export default function NavMenu({
           label: "SmartWatches",
           route: "/refurbished?category=smartwatch",
         },
-        { label: "Television", route: "/refurbished?category=television" },
       ],
     },
     {
@@ -96,7 +94,6 @@ export default function NavMenu({
           label: "Find New SmartWatches",
           route: "/smartwatches?deviceType=new",
         },
-        { label: "Find New Television", route: "/televisions?deviceType=new" },
       ],
     },
     {

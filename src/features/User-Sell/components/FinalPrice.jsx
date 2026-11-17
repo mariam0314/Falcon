@@ -31,6 +31,32 @@ export default function FinalPrice() {
   const [submitting, setSubmitting] = useState(false);
   const [error,      setError]      = useState(null);
 
+  // Doorstep Pickup & Contact state (Steps 10 & 11)
+  const storedUser = (() => {
+    try { return JSON.parse(localStorage.getItem("user") || "{}"); } catch { return {}; }
+  })();
+
+  const [contactName,   setContactName]   = useState(storedUser.firstname ? `${storedUser.firstname} ${storedUser.lastname || ""}`.trim() : "");
+  const [contactPhone,  setContactPhone]  = useState(storedUser.phone || storedUser.mobile || "");
+  const [pickupAddress, setPickupAddress] = useState(storedUser.defaultAddress?.street || "");
+  const [city,          setCity]          = useState(storedUser.defaultAddress?.city || "New Delhi");
+  const [pincode,       setPincode]       = useState(storedUser.defaultAddress?.pincode || "110001");
+
+  // Dates for tomorrow, day after, 2 days after
+  const today = new Date();
+  const dateOptions = [1, 2, 3].map((daysAhead) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + daysAhead);
+    return {
+      value: d.toISOString().split("T")[0],
+      label: daysAhead === 1 ? "Tomorrow" : d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+    };
+  });
+
+  const [selectedDate, setSelectedDate] = useState(dateOptions[0].value);
+  const timeSlots = ["10:00 AM - 01:00 PM", "02:00 PM - 05:00 PM", "05:00 PM - 08:00 PM"];
+  const [selectedSlot, setSelectedSlot] = useState(timeSlots[0]);
+
   useEffect(() => {
     if (!selectedModel || !selectedVariant) navigate("/sell", { replace: true });
   }, [selectedModel, selectedVariant]);
@@ -48,9 +74,27 @@ export default function FinalPrice() {
   }, []);
 
   const handleSubmit = async () => {
+    if (!contactName.trim() || !contactPhone.trim() || !pickupAddress.trim() || !pincode.trim()) {
+      toast.error("Please fill in your contact name, mobile, and pickup address.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await submitListing({ modelId: selectedModel.id, variantId: selectedVariant.id, category, answers, defectKeys, accessoryKeys });
+      const res = await submitListing({
+        modelId: selectedModel.id,
+        variantId: selectedVariant.id,
+        category,
+        answers,
+        defectKeys,
+        accessoryKeys,
+        contactName: contactName.trim(),
+        contactPhone: contactPhone.trim(),
+        pickupAddress: pickupAddress.trim(),
+        city: city.trim(),
+        pincode: pincode.trim(),
+        pickupDate: selectedDate,
+        timeRange: selectedSlot,
+      });
       if (!res?.data) throw new Error("Submission failed. Please try again.");
       resetFlow();
       navigate("/sell/success", { state: { listing: res.data } });
@@ -146,6 +190,130 @@ export default function FinalPrice() {
             </div>
           </div>
 
+          {/* Doorstep Pickup & Address (Steps 10 & 11) */}
+          <div className="fp-card" style={{ ...s.card, padding: "24px 26px", marginBottom: 14, animationDelay: ".08s" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#e0f2fe", display: "flex", alignItems: "center", justifyContent: "center", color: BLUE }}>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Doorstep Pickup & Contact</h3>
+                <p style={{ margin: 0, fontSize: 12, color: "#64748b" }}>An executive will arrive at your address, inspect the device, and transfer instant cash.</p>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Full Name</label>
+                <input
+                  type="text"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  placeholder="Your full name"
+                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Mobile Number</label>
+                <input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="10-digit mobile number"
+                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Pickup Address (House / Flat / Area)</label>
+              <input
+                type="text"
+                value={pickupAddress}
+                onChange={(e) => setPickupAddress(e.target.value)}
+                placeholder="E.g. Flat 402, Lotus Towers, 5th Main Rd"
+                style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+              />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6 }}>City</label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="City"
+                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 6 }}>Pincode</label>
+                <input
+                  type="text"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  placeholder="6-digit pincode"
+                  style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" }}
+                />
+              </div>
+            </div>
+
+            {/* Date & Slot Picker */}
+            <div style={{ borderTop: "1px dashed #e2e8f0", paddingTop: 14 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 8 }}>Select Pickup Date</label>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+                {dateOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSelectedDate(opt.value)}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 99,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      border: selectedDate === opt.value ? `2px solid ${BLUE}` : "1.5px solid #e2e8f0",
+                      background: selectedDate === opt.value ? "#e0f2fe" : "#fff",
+                      color: selectedDate === opt.value ? BLUE_DARK : "#475569",
+                      transition: "all .15s ease",
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#334155", marginBottom: 8 }}>Select Time Slot</label>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {timeSlots.map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setSelectedSlot(slot)}
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: 10,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      border: selectedSlot === slot ? `2px solid ${BLUE}` : "1.5px solid #e2e8f0",
+                      background: selectedSlot === slot ? "#e0f2fe" : "#fff",
+                      color: selectedSlot === slot ? BLUE_DARK : "#475569",
+                      transition: "all .15s ease",
+                    }}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* CTA row */}
           <div className="fp-card fp-cta-row" style={{ display: "flex", gap: 12, animationDelay: ".1s" }}>
             <button
@@ -156,7 +324,7 @@ export default function FinalPrice() {
               onMouseEnter={(e) => { if (!submitting) { e.currentTarget.style.background = BLUE_DARK; e.currentTarget.style.transform = "translateY(-2px)"; }}}
               onMouseLeave={(e) => { if (!submitting) { e.currentTarget.style.background = BLUE; e.currentTarget.style.transform = ""; }}}
             >
-              {submitting ? "Submitting…" : "Confirm & List Device"}
+              {submitting ? "Scheduling Pickup…" : "Schedule Doorstep Pickup & Get Paid"}
               {!submitting && (
                 <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} style={{ marginLeft: 8 }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />

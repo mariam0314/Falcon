@@ -10,7 +10,7 @@ export default function SellSuccess() {
   const location = useLocation();
   const listing  = location.state?.listing;
 
-  useEffect(() => { toast.success("Device listed successfully! 🎉"); }, []);
+  useEffect(() => { toast.success("Pickup scheduled successfully! 🎉"); }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -25,28 +25,33 @@ export default function SellSuccess() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Device Listed!</h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Your device has been listed. Sellers will contact you soon.
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-emerald-50 text-emerald-600 border border-emerald-200 mb-2">
+            Pickup Confirmed
+          </span>
+          <h2 className="text-xl font-bold text-gray-900">Doorstep Pickup Scheduled!</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Our certified executive will arrive at your address to inspect the device and transfer instant cash.
           </p>
         </div>
 
         {listing && (
           <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 text-sm space-y-2 text-left">
+            <Row label="Request ID" value={listing.requestId || `FEL-SELL-${listing.listingId?.slice(-6)?.toUpperCase()}`} mono highlight />
             <Row label="Device"     value={listing.device} />
-            <Row label="Category"   value={listing.category} />
-            <Row label="Price"      value={`₹${listing.finalPrice.toLocaleString("en-IN")}`} />
-            <Row label="Status"     value={listing.status} />
-            <Row label="Listing ID" value={listing.listingId} mono />
+            <Row label="Estimated Payout" value={`₹${listing.finalPrice?.toLocaleString("en-IN")}`} bold />
+            {listing.pickup?.date && <Row label="Pickup Date" value={listing.pickup.date} />}
+            {listing.pickup?.timeRange && <Row label="Time Slot" value={listing.pickup.timeRange} />}
+            {listing.pickup?.address && <Row label="Pickup Address" value={`${listing.pickup.address}, ${listing.pickup.city || ""}`} />}
+            <Row label="Inspection Status" value="Scheduled (Pending Handover)" />
           </div>
         )}
 
         <div className="flex gap-3 pt-2">
           <button
             onClick={() => navigate("/")}
-            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-gray-300 transition"
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-gray-300 transition"
           >
-            Home
+            Back to Home
           </button>
           <button
             onClick={() => navigate("/profile")}
@@ -55,7 +60,7 @@ export default function SellSuccess() {
             onMouseEnter={(e) => { e.currentTarget.style.background = "#005f8f"; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = "#0077b6"; }}
           >
-            My Listings
+            Track Selling Request
           </button>
         </div>
       </div>
@@ -63,11 +68,13 @@ export default function SellSuccess() {
   );
 }
 
-function Row({ label, value, mono }) {
+function Row({ label, value, mono, bold, highlight }) {
   return (
     <div className="flex justify-between items-center gap-2">
       <span className="text-gray-400 text-xs">{label}</span>
-      <span className={`text-gray-700 text-xs ${mono ? "font-mono" : ""}`}>{value}</span>
+      <span className={`text-xs ${mono ? "font-mono font-semibold" : ""} ${bold ? "font-bold text-blue-600" : "text-gray-700"} ${highlight ? "text-blue-700 bg-blue-50 px-2 py-0.5 rounded" : ""}`}>
+        {value}
+      </span>
     </div>
   );
 }
