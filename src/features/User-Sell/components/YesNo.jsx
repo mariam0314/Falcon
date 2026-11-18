@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEvaluationConfig } from "../../../services/deviceSell.api";
+import { getFallbackEvaluationConfig } from "../../../services/deviceCatalogFallback";
 import { useSellFlow } from "../../../context/sellflow.context";
 import toast from "react-hot-toast";
 
@@ -37,8 +38,8 @@ export default function YesNo() {
   const navigate = useNavigate();
   const { category, selectedModel, selectedVariant, answers, setAnswers } = useSellFlow();
 
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [questions, setQuestions] = useState(() => getFallbackEvaluationConfig(category).questions || []);
+  const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState(null);
 
   useEffect(() => {
@@ -49,8 +50,14 @@ export default function YesNo() {
 
   useEffect(() => {
     getEvaluationConfig(category)
-      .then((res) => setQuestions(res.data.questions))
-      .catch((err) => setError(err.message))
+      .then((res) => {
+        if (res?.data?.questions) {
+          setQuestions(res.data.questions);
+        }
+      })
+      .catch((err) => {
+        console.warn("YesNo getEvaluationConfig notice:", err.message);
+      })
       .finally(() => setLoading(false));
   }, [category]);
 

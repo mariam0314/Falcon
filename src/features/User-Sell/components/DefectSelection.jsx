@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEvaluationConfig } from "../../../services/deviceSell.api";
+import { getFallbackEvaluationConfig } from "../../../services/deviceCatalogFallback";
 import { useSellFlow } from "../../../context/sellflow.context";
 import toast from "react-hot-toast";
 import LazyImage from "../../../components/LazyImage";
@@ -66,15 +67,21 @@ export default function DefectSelection() {
   const navigate = useNavigate();
   const { category, selectedModel, selectedVariant, setSelectedDefectGroups } = useSellFlow();
 
-  const [defects,         setDefects]         = useState([]);
+  const [defects,         setDefects]         = useState(() => getFallbackEvaluationConfig(category).defects || []);
   const [selectedParents, setSelectedParents] = useState([]);
-  const [loading,         setLoading]         = useState(true);
+  const [loading,         setLoading]         = useState(false);
   const [error,           setError]           = useState(null);
 
   useEffect(() => {
     getEvaluationConfig(category)
-      .then((res) => setDefects(res.data.defects))
-      .catch((err) => setError(err.message))
+      .then((res) => {
+        if (res?.data?.defects) {
+          setDefects(res.data.defects);
+        }
+      })
+      .catch((err) => {
+        console.warn("DefectSelection notice:", err.message);
+      })
       .finally(() => setLoading(false));
   }, [category]);
 

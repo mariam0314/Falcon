@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getEvaluationConfig } from "../../../services/deviceSell.api";
+import { getFallbackEvaluationConfig } from "../../../services/deviceCatalogFallback";
 import { useSellFlow } from "../../../context/sellflow.context";
 import toast from "react-hot-toast";
 
@@ -48,8 +49,8 @@ export default function AccessorySelection() {
   const navigate = useNavigate();
   const { category, selectedModel, selectedVariant, accessoryKeys, setAccessoryKeys } = useSellFlow();
 
-  const [accessories, setAccessories] = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [accessories, setAccessories] = useState(() => getFallbackEvaluationConfig(category).accessories || []);
+  const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState(null);
 
   useEffect(() => {
@@ -60,8 +61,14 @@ export default function AccessorySelection() {
 
   useEffect(() => {
     getEvaluationConfig(category)
-      .then((res) => setAccessories(res.data.accessories))
-      .catch((err) => setError(err.message))
+      .then((res) => {
+        if (res?.data?.accessories) {
+          setAccessories(res.data.accessories);
+        }
+      })
+      .catch((err) => {
+        console.warn("AccessorySelection notice:", err.message);
+      })
       .finally(() => setLoading(false));
   }, [category]);
 

@@ -64,7 +64,18 @@ export default function FinalPrice() {
   if (!selectedModel || !selectedVariant) return null;
 
   useEffect(() => {
-    calculatePrice({ modelId: selectedModel.id, variantId: selectedVariant.id, category, answers, defectKeys, accessoryKeys })
+    calculatePrice({
+      modelId: selectedModel.id,
+      variantId: selectedVariant.id,
+      category,
+      answers,
+      defectKeys,
+      accessoryKeys,
+      basePrice: selectedVariant.basePrice || 22000,
+      modelName: selectedModel.name,
+      variantLabel: selectedVariant.label,
+      modelImage: selectedModel.image,
+    })
       .then((res) => setPriceData(res.data))
       .catch((err) => {
         if (isAuthError(err)) { navigate("/sell/login-required", { replace: true }); return; }

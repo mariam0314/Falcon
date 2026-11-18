@@ -11,41 +11,50 @@ import FAQ from "../../Auth/components/FAQ";
 import DownloadAppBanner from "../../Auth/components/DownloadAppBanner";
 import Footer from "../../Auth/components/Footer";
 import { getBrands } from "../../../services/deviceSell.api";
+import { getFallbackBrands } from "../../../services/deviceCatalogFallback";
 import { useSellFlow } from "../../../context/sellflow.context";
 import { useAuth } from "../../../hooks/useAuth";
 import SellerCannotSellPage from "./SellerCannotSellPage";
 
-
-const CATEGORY = "tablet"; // change to "laptop" | "tablet" etc. per page
+const CATEGORY = "tablet";
+const initialFallback = getFallbackBrands(CATEGORY);
+const defaultNames = initialFallback.map((b) => b.brand);
+const defaultLogos = Object.fromEntries(
+  initialFallback.filter((b) => b.logo).map((b) => [b.brand, b.logo])
+);
 
 export default function SellTablets() {
   const navigate = useNavigate();
   const { setCategory, setSelectedBrand } = useSellFlow();
 
-  const [brands, setBrands]       = useState([]);
-const [brandLogos, setBrandLogos] = useState({});
-const [loading, setLoading]     = useState(true);
-const [error, setError]         = useState(null);
-    const { user } = useAuth();
+  const [brands, setBrands]       = useState(defaultNames);
+  const [brandLogos, setBrandLogos] = useState(defaultLogos);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState(null);
+  const { user } = useAuth();
 
   if (user?.role === "seller") {
-  return <SellerCannotSellPage />;
-}
+    return <SellerCannotSellPage />;
+  }
 
-useEffect(() => {
-  setCategory(CATEGORY);
-  getBrands(CATEGORY)
-    .then((res) => {
-      const names = res.data.map((b) => b.brand);
-      const logos = Object.fromEntries(
-        res.data.filter((b) => b.logo).map((b) => [b.brand, b.logo])
-      );
-      setBrands(names);
-      setBrandLogos(logos);
-    })
-    .catch((err) => setError(err.message))
-    .finally(() => setLoading(false));
-}, []);
+  useEffect(() => {
+    setCategory(CATEGORY);
+    getBrands(CATEGORY)
+      .then((res) => {
+        if (res && Array.isArray(res.data) && res.data.length > 0) {
+          const names = res.data.map((b) => b.brand);
+          const logos = Object.fromEntries(
+            res.data.filter((b) => b.logo).map((b) => [b.brand, b.logo])
+          );
+          setBrands(names);
+          setBrandLogos(logos);
+        }
+      })
+      .catch((err) => {
+        console.warn("SellTablets getBrands notice:", err.message);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const handleBrandClick = (brand) => {
     setSelectedBrand(brand);

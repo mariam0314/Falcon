@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getVariantsByModel } from "../../../services/deviceSell.api";
+import { getFallbackVariants } from "../../../services/deviceCatalogFallback";
 import { useSellFlow } from "../../../context/sellflow.context";
 import toast from "react-hot-toast";
 import LazyImage from "../../../components/LazyImage";
@@ -16,9 +17,9 @@ export default function ChooseVariant() {
   const navigate = useNavigate();
   const { selectedModel, setSelectedVariant } = useSellFlow();
 
-  const [variants, setVariants] = useState([]);
-  const [picked, setPicked] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [variants, setVariants] = useState(() => getFallbackVariants(selectedModel?.id));
+  const [picked, setPicked] = useState(() => getFallbackVariants(selectedModel?.id)[0] || null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -29,8 +30,15 @@ export default function ChooseVariant() {
 
   useEffect(() => {
     getVariantsByModel(selectedModel.id)
-      .then((res) => setVariants(res.data))
-      .catch((err) => setError(err.message))
+      .then((res) => {
+        if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+          setVariants(res.data);
+          setPicked(res.data[0]);
+        }
+      })
+      .catch((err) => {
+        console.warn("ChooseVariant notice:", err.message);
+      })
       .finally(() => setLoading(false));
   }, [selectedModel.id]);
 

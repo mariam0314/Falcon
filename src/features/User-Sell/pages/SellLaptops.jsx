@@ -11,19 +11,24 @@ import FAQ from "../../Auth/components/FAQ";
 import DownloadAppBanner from "../../Auth/components/DownloadAppBanner";
 import Footer from "../../Auth/components/Footer";
 import { getBrands } from "../../../services/deviceSell.api";
+import { getFallbackBrands } from "../../../services/deviceCatalogFallback";
 import { useSellFlow } from "../../../context/sellflow.context";
 import { useAuth } from "../../../hooks/useAuth";
 import SellerCannotSellPage from "./SellerCannotSellPage";
 
-
-const CATEGORY = "laptop"; // change to "laptop" | "tablet" etc. per page
+const CATEGORY = "laptop";
+const initialFallback = getFallbackBrands(CATEGORY);
+const defaultNames = initialFallback.map((b) => b.brand);
+const defaultLogos = Object.fromEntries(
+  initialFallback.filter((b) => b.logo).map((b) => [b.brand, b.logo])
+);
 
 export default function SellLaptops() {
   const navigate = useNavigate();
   const { setCategory, setSelectedBrand } = useSellFlow();
-  const [brands, setBrands] = useState([]);
-  const [brandLogos, setBrandLogos] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [brands, setBrands] = useState(defaultNames);
+  const [brandLogos, setBrandLogos] = useState(defaultLogos);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { user } = useAuth();
 
@@ -35,14 +40,18 @@ export default function SellLaptops() {
     setCategory(CATEGORY);
     getBrands(CATEGORY)
       .then((res) => {
-        const names = res.data.map((b) => b.brand);
-        const logos = Object.fromEntries(
-          res.data.filter((b) => b.logo).map((b) => [b.brand, b.logo]),
-        );
-        setBrands(names);
-        setBrandLogos(logos);
+        if (res && Array.isArray(res.data) && res.data.length > 0) {
+          const names = res.data.map((b) => b.brand);
+          const logos = Object.fromEntries(
+            res.data.filter((b) => b.logo).map((b) => [b.brand, b.logo]),
+          );
+          setBrands(names);
+          setBrandLogos(logos);
+        }
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => {
+        console.warn("SellLaptops getBrands notice:", err.message);
+      })
       .finally(() => setLoading(false));
   }, []);
 

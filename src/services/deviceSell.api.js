@@ -1,4 +1,11 @@
 import { buildApiUrl, BASE_URL } from "./api.config";
+import {
+  getFallbackBrands,
+  getFallbackModels,
+  getFallbackVariants,
+  getFallbackEvaluationConfig,
+  calculateLocalPrice,
+} from "./deviceCatalogFallback";
 
 const req = (method, endpoint, body) =>
   request(endpoint, {
@@ -32,20 +39,77 @@ const buildQuery = (params = {}) => {
 // ─── PUBLIC — CATALOG BROWSING ────────────────────────────────────
 
 /** GET /api/device-sell/brands?category=mobile */
-export const getBrands = (category) =>
-  request(`/device-sell/brands?category=${category}`);
+export const getBrands = async (category = "mobile") => {
+  try {
+    const res = await request(`/device-sell/brands?category=${category}`);
+    if (res && Array.isArray(res.data) && res.data.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn(`[getBrands] Network or backend API notice (${category}):`, err.message);
+  }
+  return {
+    success: true,
+    category,
+    data: getFallbackBrands(category),
+    isFallback: true,
+  };
+};
 
 /** GET /api/device-sell/brands/:brand/models?category=mobile */
-export const getModelsByBrand = (brand, category) =>
-  request(`/device-sell/brands/${encodeURIComponent(brand)}/models?category=${category}`);
+export const getModelsByBrand = async (brand, category = "mobile") => {
+  try {
+    const res = await request(`/device-sell/brands/${encodeURIComponent(brand)}/models?category=${category}`);
+    if (res && Array.isArray(res.data) && res.data.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn(`[getModelsByBrand] Network or backend API notice (${brand}, ${category}):`, err.message);
+  }
+  return {
+    success: true,
+    brand,
+    category,
+    data: getFallbackModels(brand, category),
+    isFallback: true,
+  };
+};
 
 /** GET /api/device-sell/models/:modelId/variants */
-export const getVariantsByModel = (modelId) =>
-  request(`/device-sell/models/${modelId}/variants`);
+export const getVariantsByModel = async (modelId) => {
+  try {
+    const res = await request(`/device-sell/models/${modelId}/variants`);
+    if (res && Array.isArray(res.data) && res.data.length > 0) {
+      return res;
+    }
+  } catch (err) {
+    console.warn(`[getVariantsByModel] Network or backend API notice (${modelId}):`, err.message);
+  }
+  return {
+    success: true,
+    data: getFallbackVariants(modelId),
+    specFields: ["ram", "storage"],
+    isFallback: true,
+  };
+};
 
 /** GET /api/device-sell/evaluation-config?category=mobile */
-export const getEvaluationConfig = (category) =>
-  request(`/device-sell/evaluation-config?category=${category}`);
+export const getEvaluationConfig = async (category = "mobile") => {
+  try {
+    const res = await request(`/device-sell/evaluation-config?category=${category}`);
+    if (res && res.data) {
+      return res;
+    }
+  } catch (err) {
+    console.warn(`[getEvaluationConfig] Network or backend API notice (${category}):`, err.message);
+  }
+  return {
+    success: true,
+    category,
+    data: getFallbackEvaluationConfig(category),
+    isFallback: true,
+  };
+};
 
 // ── Super seller only ─────────────────────────────────────────────────────────
 // Dismisses a listing from the super seller's browse view (without accepting first).
@@ -59,11 +123,32 @@ export const dismissListing  = (id, reason)   => req("POST", `/device-sell/listi
  * Preview final price before submitting.
  * @param {{ modelId, variantId, category, answers, defectKeys, accessoryKeys }} payload
  */
-export const calculatePrice = (payload) =>
-  request(`/device-sell/calculate`, {
-    method: "POST",
-    body:   JSON.stringify(payload),
-  });
+export const calculatePrice = async (payload) => {
+  try {
+    const res = await request(`/device-sell/calculate`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    if (res && res.data) return res;
+  } catch (err) {
+    console.warn("[calculatePrice] Network or auth notice, computing price locally:", err.message);
+    const local = calculateLocalPrice({
+      basePrice: payload.basePrice || 22000,
+      answers: payload.answers || {},
+      defectKeys: payload.defectKeys || [],
+      accessoryKeys: payload.accessoryKeys || [],
+      category: payload.category || "mobile",
+      modelName: payload.modelName || "Selected Device",
+      variantLabel: payload.variantLabel || "Selected Variant",
+      modelImage: payload.modelImage || null,
+    });
+    return {
+      success: true,
+      data: local,
+      isLocal: true,
+    };
+  }
+};
 
 /**
  * POST /api/device-sell/submit
