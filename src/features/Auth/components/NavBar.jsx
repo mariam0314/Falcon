@@ -535,14 +535,13 @@ export default function NavBar() {
         <div className="flex items-center justify-between gap-2 sm:gap-3">
 
           {/* Logo */}
-            <div className="flex items-center space-x-2 flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
-              <img
-                src="/nav-logo.png"
-                alt="FELCON Logo"
-                className="h-8 sm:h-10 w-auto object-contain rounded-lg"
-              />
-              <span className="font-black text-xl tracking-tight text-[#0077b6] hidden xs:inline-block">FELCON</span>
-            </div>
+          <div className="flex items-center flex-shrink-0 cursor-pointer" onClick={() => navigate("/")}>
+            <img
+              src="/nav-logo.png"
+              alt="FELCON Logo"
+              className="h-8 sm:h-9 md:h-10 w-auto object-contain"
+            />
+          </div>
 
           {/* Search bar — desktop only, hidden for admins */}
           {!isAdmin && !isFilterPage && (
