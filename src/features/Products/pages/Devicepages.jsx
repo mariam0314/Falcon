@@ -39,8 +39,8 @@ const phonesFilterConfig = [
     label:   "Brand",
     type:    "checkbox",
     options: [
-      "Apple", "Samsung", "OnePlus", "Google", "Xiaomi", "Redmi", "POCO",
-      "Vivo", "iQOO", "Oppo", "Realme", "Motorola", "Nothing",
+      "Apple", "Samsung", "OnePlus", "Google", "Xiaomi", "Realme",
+      "Vivo", "Oppo", "Motorola", "POCO", "Nokia", "Nothing",
       "Sony", "Asus", "Honor", "Huawei", "Tecno", "Infinix", "Lava"
     ],
   },

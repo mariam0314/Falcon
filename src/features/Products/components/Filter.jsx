@@ -442,7 +442,7 @@ function FilterPanel({
 function PreviewModal({ device, onClose }) {
   const navigate = useNavigate();
   const specRows = extractSpecRows(device);
-  const imageUrl = device.images?.[0] || null;
+  const imageUrl = getDeviceImage(device);
   const title = device.title || device.name || "Product";
   const pct = discountPct(device.price, device.originalPrice);
   const savedAmt =
@@ -1452,7 +1452,7 @@ export default function Filter({
     const params = {
       status: "available",
       sortBy,
-      limit: 100,
+      limit: 2000,
       page,
     };
 
@@ -1509,6 +1509,34 @@ export default function Filter({
       }
       if (key === "specs.laptopType") {
         params["specs.laptopType"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.camera") {
+        params["specs.camera"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.battery") {
+        params["specs.battery"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.refresh") {
+        params["specs.refresh"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.display") {
+        params["specs.display"] = vals.join(",");
+        continue;
+      }
+      if (key === "specs.dispType") {
+        params["specs.dispType"] = vals.join(",");
+        continue;
+      }
+      if (key === "color") {
+        params.color = vals.join(",");
+        continue;
+      }
+      if (key === "availability") {
+        params.availability = vals.join(",");
         continue;
       }
     }
